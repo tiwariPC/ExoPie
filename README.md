@@ -17,10 +17,17 @@ The script for merging is located in analysistools/mergetools
 It is better to merge the input files and use the chunksize of 100K to 150K (during the analysis) for better performances. 
 The merging of the skimmed files can be done using: 
 
-python merge_data_mc.py -i input/path/to/dir  -o output/path/to/dir -N Number_of_files_to_merge_in_one_file 
+python merge_data_mc.py -i input/path/to/dir  -o output/path/to/dir -N Number_of_files_to_merge_in_one_file
+
+by default it take all the files for a given sample in the directory structure provided and merge them into 1.  
 
 ## Run the t+DM analysis code (cross-check only) 
 The analyzers files are located in analyzers/ and can be run using 
 python tdmAnalyzer.py -i input_file -o output_file_name
 
 if no outfile name is provided, default, out.root will be used. 
+
+## Run the bb+MET analsis code,  developing, not yet on the git. 
+python bbdmAnalyzer.py -i input_file -o output_file_name
+
+## 
