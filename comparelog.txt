@@ -1,0 +1,8 @@
+## number of events after first round of sync, and all the weights applied
+
+muon region:  8107.15
+electron region: 5957.36
+
+
+## PU reweighting bug found and fixed, new numbers are: 
+
