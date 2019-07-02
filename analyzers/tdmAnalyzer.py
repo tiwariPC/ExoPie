@@ -62,10 +62,10 @@ start = time.clock()
 
 ### dataframe for output 
 df_out = DataFrame(columns=['run', 'lumi', 'event', 'MET', 'MT', 'Njets_PassID', 'Nbjets_PassID','ElePt', 'EleEta', 'ElePhi', 'Jet1Pt', 'Jet1Eta', 'Jet1Phi', 
-                            'Jet2Pt','Jet2Eta', 'Jet2Phi', 'Jet3Pt','Jet3Eta','Jet3Phi','Jet1Idx','Jet2Idx','Jet3Idx'])
+                            'Jet2Pt','Jet2Eta', 'Jet2Phi', 'Jet3Pt','Jet3Eta','Jet3Phi','Jet1Idx','Jet2Idx','Jet3Idx', 'weight'])
 df_out_wmunu_cr = DataFrame(columns=['run', 'lumi', 'event', 'MET', 'MT', 'Njets_PassID', 'Nbjets_PassID', 'Jet1Pt', 'Jet1Eta', 'Jet1Phi',
                                      'Jet2Pt','Jet2Eta', 'Jet2Phi', 'Jet3Pt','Jet3Eta','Jet3Phi', 'Jet1Idx', 'Jet2Idx', 'Jet3Idx', 
-                                     'MuPt', 'MuEta', 'MuPhi'])
+                                     'MuPt', 'MuEta', 'MuPhi','weight'])
 
 
 recoil_den  = TH1F("recoil_den","recoil_den", 100, 0.0,1000.)
@@ -377,7 +377,7 @@ for df in read_root(filename,columns=jetvariables, chunksize=125000):
                                         'MET': met_, 'MT': mt_ele[pass_ele_index[0]], 'Njets_PassID': len(pass_jet_cleaned_index_), 'Nbjets_PassID':len(pass_bjetM_eta2p4_index), 
                                         'ElePt':elept[eleidx], 'EleEta':eleeta[eleidx], 'ElePhi':elephi[eleidx], 'Jet1Pt':ak4pt[j1idx], 'Jet1Eta':ak4eta[j1idx], 'Jet1Phi':ak4phi[j1idx],
                                         'Jet2Pt':ak4pt[j2idx],'Jet2Eta':ak4eta[j2idx], 'Jet2Phi':ak4phi[j2idx], 'Jet3Pt':ak4pt[j3idx],'Jet3Eta':ak4eta[j3idx],'Jet3Phi':ak4phi[j3idx], 
-                                        'Jet1Idx':j1idx, 'Jet2Idx':j2idx,'Jet3Idx':j3idx }, ignore_index=True)
+                                        'Jet1Idx':j1idx, 'Jet2Idx':j2idx,'Jet3Idx':j3idx,'weight':1.0 }, ignore_index=True)
                 
             
             
@@ -399,11 +399,12 @@ for df in read_root(filename,columns=jetvariables, chunksize=125000):
             print "object info mu ", wmunu_cr,  run, lumi, event, mupt[muidx], mueta[muidx], muphi[muidx], j1idx, ak4pt[j1idx], ak4eta[j1idx], ak4phi[j1idx], j2idx, ak4pt[j2idx], ak4eta[j2idx], ak4phi[j2idx], j3idx, ak4pt[j3idx], ak4eta[j3idx], ak4phi[j3idx], met_, mt_mu[pass_mu_index[0]], [len(pass_mu_index)==1, nmu_==1, met_>250.0, len(pass_jet_index)>=3, len(pass_bjetM_eta2p4_index)==0, mt_mu[pass_mu_index[0]]<160.]
             if wmunu_cr:
                 df_out_wmunu_cr = df_out_wmunu_cr.append({'run':run, 'lumi':lumi, 'event':event, 
-                                                 'MET': met_, 'MT': mt_mu[muidx], 'Njets_PassID': len(pass_jet_cleaned_index_), 'Nbjets_PassID':len(pass_bjetM_eta2p4_index),
-                                                 'Jet1Pt':ak4pt[j1idx], 'Jet1Eta':ak4eta[j1idx], 'Jet1Phi':ak4phi[j1idx],
-                                                 'Jet2Pt':ak4pt[j2idx],'Jet2Eta':ak4eta[j2idx], 'Jet2Phi':ak4phi[j2idx], 'Jet3Pt':ak4pt[j3idx],'Jet3Eta':ak4eta[j3idx],'Jet3Phi':ak4phi[j3idx], 
-                                                 'Jet1Idx':j1idx, 'Jet2Idx':j2idx,'Jet3Idx':j3idx, 'MuPt':mupt[muidx], 'MuEta':mueta[muidx], 'MuPhi':muphi[muidx] }, ignore_index=True)
-            
+                                                          'MET': met_, 'MT': mt_mu[muidx], 'Njets_PassID': len(pass_jet_cleaned_index_), 'Nbjets_PassID':len(pass_bjetM_eta2p4_index),
+                                                          'Jet1Pt':ak4pt[j1idx], 'Jet1Eta':ak4eta[j1idx], 'Jet1Phi':ak4phi[j1idx],
+                                                          'Jet2Pt':ak4pt[j2idx],'Jet2Eta':ak4eta[j2idx], 'Jet2Phi':ak4phi[j2idx], 'Jet3Pt':ak4pt[j3idx],'Jet3Eta':ak4eta[j3idx],'Jet3Phi':ak4phi[j3idx], 
+                                                          'Jet1Idx':j1idx, 'Jet2Idx':j2idx,'Jet3Idx':j3idx, 'MuPt':mupt[muidx], 'MuEta':mueta[muidx], 'MuPhi':muphi[muidx],'weight':1.0 }, 
+                                                         ignore_index=True)
+        
     ''' the dataframe must be merged after each chunksize 
     Following code must be in the dataframe chunksize loop, 
     otherwise it will be completely wrong. '''

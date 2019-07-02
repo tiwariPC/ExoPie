@@ -59,3 +59,34 @@ where first index  [] is X axis of the plot and second index [] is Y axis of the
 
 7. compare with code pointed by Deborah, if everything is ok in our code, in case  needed here is the base code, 
 https://github.com/UZHCMS from where some of the packages are taken, 
+
+
+
+
+
+## To do for Deepak: 
+
+1. this is the input path for rootfile
+/eos/cms/store/group/phys_exotica/bbMET/2016_skimmer/tDM_06052019/
+
+2. it has sub dirs like TTWJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8_0000/
+
+3. there are many such dirs. 
+
+4. i want to merge these rootfiles, 
+
+5. merge 20 files in a single file, if dir has less than 20, say N then use N files., 
+
+6. The input and output path should be configurable, with -i and -o 
+
+7. Number of files to be hadded should be configrable with defaiult value to all. you can set a large number say 900 which is max for hadd.  
+
+8. in the outdir provided by -o make Merged_tDM_06052019 (last string in the input path) 
+
+9. further dir substructure should be exactly like the  Merged_tDM_06052019/Merged_TTWJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8_0000.root   when all is used 
+
+and 
+name should be following when N is provided 
+
+Merged_tDM_06052019/TTWJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8_0000/Merged_SkimmedTree_*.root
+
