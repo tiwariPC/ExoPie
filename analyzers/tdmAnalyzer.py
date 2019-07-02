@@ -1,6 +1,7 @@
 import os 
 import sys 
-import optparse
+#import optparse
+import argparse
 import numpy
 import pandas
 from root_pandas import read_root
@@ -9,7 +10,7 @@ from pandas import Series
 from ROOT import TLorentzVector, TH1F
 import time
 
-sys.path.append('../utils')
+sys.path.append('utils')
 
 from MathUtils import * 
 #getPt, getEta, getPhi, logical_AND, logical_OR, getMT, Delta_R, logical_AND_List*
@@ -18,15 +19,16 @@ from MathUtils import *
 
 debug_=False
 
-usage = "usage: %prog [options] arg1 arg2"
-parser = optparse.OptionParser(usage)
-parser.add_option("-i", "--inputfile",  dest="inputfile")
-parser.add_option("-o", "--outputfile", dest="outputfile")
-parser.add_option("-D", "--outputdir", dest="outputdir")
-parser.add_option("-F", "--farmout", action="store_true",  dest="farmout")
-(options, args) = parser.parse_args()
+usage = "analyzer for t+DM (debugging) "
+parser = argparse.ArgumentParser(description=usage)
+parser.add_argument("-i", "--inputfile",  dest="inputfile")
+parser.add_argument("-o", "--outputfile", dest="outputfile",default="out.root")
+parser.add_argument("-D", "--outputdir", dest="outputdir")
+parser.add_argument("-F", "--farmout", action="store_true",  dest="farmout")
+args = parser.parse_args()
 
-infile = options.inputfile
+infile = args.inputfile
+print 'outfile= ', args.outputfile
 
 '''
 ## https://engineering.upside.com/a-beginners-guide-to-optimizing-pandas-code-for-speed-c09ef2c6a4d6
@@ -449,9 +451,11 @@ for df in read_root(filename,columns=jetvariables, chunksize=125000):
     df_all = concat([df_all,df])
 print df_out    
     
-df_out.to_root('out.root', key='t_dm_wenucr')
 
-df_out_wmunu_cr.to_root('out.root', key='t_dm_wmunucr',mode='a')
+outputfilename = args.outputfile
+df_out.to_root(outputfilename, key='t_dm_wenucr')
+
+df_out_wmunu_cr.to_root(outputfilename, key='t_dm_wmunucr',mode='a')
 
 
 

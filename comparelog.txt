@@ -6,3 +6,56 @@ electron region: 5957.36
 
 ## PU reweighting bug found and fixed, new numbers are: 
 
+
+
+
+
+
+
+
+Questions for Praveen: 
+
+## check the lepton ID, iso for cleaning against jets 
+
+## reco eff SF for pt< 25 GeV, where did you find the range to be 25-500? 
+
+## 
+
+
+
+
+
+
+## To do for Praveen: 
+
+1. is the pileup.root official, or checked with someone that this is all ok? and did you check that from twiki how to apply the weights? e.g. which one is correct: 
+puweight = pileup2016histo.GetBinContent(pu_nTrueInt)
+or 
+puweight = pileup2016histo.GetBinContent(pu_nTrueInt-1)
+
+please look at the PU reweight twiki and confirm this is done correctly? 
+
+
+2. genparticle p4 needs to be converted into px, py, pz, E in order to make my setup work on this, 
+
+3. kfactor.py missing in the repository 
+
+4.  do you know GetBinContent takes only integer values, and I guess pu_nTrueInt is a float, do you know how root typecast this number automatically? 
+
+5. To make the process faster, can you print the bin edges of each of the 2d histograms used for SF, and make python lists like
+etabins=[-2.5,-2,1, -1.5, -1.4, -0.8, 0.0, 0.8, 1.4, 1.5, 2.1, 2.5] (check carefully this is just a guess)
+ptbins=[]
+
+and share them, 
+
+6. Next useful thing would  be to read all 2D histograms used for SFs, and make them a 2d array, e.g. 
+
+sf[0][0] = 0.9
+sf[0][1] = 0.95 
+
+where first index  [] is X axis of the plot and second index [] is Y axis of the plot, 
+
+ I wrote the plugin to use 5 and 6 above and make this SF reading faster. 
+
+7. compare with code pointed by Deborah, if everything is ok in our code, in case  needed here is the base code, 
+https://github.com/UZHCMS from where some of the packages are taken, 
