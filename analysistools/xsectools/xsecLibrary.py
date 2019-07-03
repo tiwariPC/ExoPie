@@ -42,8 +42,6 @@ def getXsec(samplename):
         'QCD_HT1500to2000_TuneCUETP8M1' : 119.9 * qcd_sf,
         'QCD_HT2000toInf_TuneCUETP8M1'  : 25.24 * qcd_sf,
         'TT_TuneCUETP8M2T4'             : 831.76,
-        'TTToSemilepton'                : 364.35,
-        'TTTo2L2Nu'                     : 87.31,
         'WWTo1L1Nu2Q'                   : 49.997,
         'WWTo2L2Nu'                     : 12.178,
         'WWTo4Q_4f'                     : 51.723,
@@ -56,29 +54,24 @@ def getXsec(samplename):
         'ZZTo2Q2Nu'                     : 4.04,
         'ZZTo4L'                        : 1.2120,
         'ZZTo4Q'                        : 6.842,
-        'ST_s-channel_4f_leptonDecays'   : 3.36,
-        'ST_t-channel_antitop_4f'       : 80.95,
-        'ST_t-channel_top_4f'           : 136.02,
-        'ST_tW_antitop_5f'              : 35.85,
-        'ST_tW_top_5f'                  : 35.85,
         'TTWJetsToLNu_TuneCUETP8M1'     : 0.2043,
         'TTWJetsToQQ_TuneCUETP8M1'      : 0.4062,
         'TTZToQQ_TuneCUETP8M1'          : 0.5297,
-        'TTZToLLNuNu_TuneCUETP8M1'      : 0.2529,
+        'ST_s-channel_4f_leptonDecays'   : 3.36,
+        'ST_t-channel_top_4f_inclusiveDecays':136.02, 
+        'ST_t-channel_antitop_4f_inclusiveDecays':80.95, ## may be same as above, in that case change the above str
+        'ST_tW_antitop_5f_inclusiveDecays':35.85,  ## ## may be same as above, in that case change the above str 
+        'TTToSemilepton_TuneCUETP8M2_ttHtranche3':364.35,
+        'TTZToLLNuNu_M-10_TuneCUETP8M1':0.2529,  ## ## may be same as above, in that case change the above str 
+        'TTTo2L2Nu_TuneCUETP8M2_ttHtranche3':87.31, ## ## may be same as above, in that case change the above str 
+        'ST_tW_top_5f_inclusiveDecays':35.85,  ## ## may be same as above, in that case change the above str
         'WminusH_HToBB_WToLNu_M125'     : 1, 
-        'ST_t-channel_top_4f_inclusiveDecays':1, ## may be same as above, in that case change the above str 
-        'TTToSemilepton_TuneCUETP8M2_ttHtranche3':1, ## may be same as above, in that case change the above str
-        'ST_t-channel_antitop_4f_inclusiveDecays':1, ## may be same as above, in that case change the above str
-        'ggZH_HToBB_ZToLL_M125':1,  
-        'ZZ_TuneCUETP8M1':1,  
-        'ZH_HToBB_ZToLL_M125':1,  
-        'ST_tW_antitop_5f_inclusiveDecays':1,  ## ## may be same as above, in that case change the above str 
-        'TTZToLLNuNu_M-10_TuneCUETP8M1':1,  ## ## may be same as above, in that case change the above str 
-        'TTTo2L2Nu_TuneCUETP8M2_ttHtranche3':1, ## ## may be same as above, in that case change the above str 
         'WplusH_HToBB_WToLNu_M125':1, 
-        'WW_TuneCUETP8M1':1,
-        'WZ_TuneCUETP8M1':1,
-        'ST_tW_top_5f_inclusiveDecays':1,  ## ## may be same as above, in that case change the above str
+        'ggZH_HToBB_ZToLL_M125':1,  
+        'ZH_HToBB_ZToLL_M125':1,  
+        'WW_TuneCUETP8M1':118.7,
+        'WZ_TuneCUETP8M1':47.2, 
+        'ZZ_TuneCUETP8M1':16.6,  
         'SingleElectron-Run2016.root':1, ## the cross-section will always remain 1 here but the str should change 
         'SingleMu2016.root':1 ## the cross-section will always remain 1 here but the str should change
 

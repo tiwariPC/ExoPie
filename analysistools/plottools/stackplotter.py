@@ -20,7 +20,7 @@ FullfileList = [join(inputfilepath,ifile) for ifile in filenameList]
 https://stackoverflow.com/questions/11328958/save-the-plots-into-a-pdf
 https://matplotlib.org/3.1.0/api/_as_gen/matplotlib.pyplot.hist.html
 
-
+https://stackoverflow.com/questions/50404913/how-to-change-the-color-palette-for-stackplot-matplotlib
 
 
 '''

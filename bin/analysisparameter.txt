@@ -1,0 +1,6 @@
+path_input_mergetools
+path_output_mergetools
+path_input_xsectools
+path_output_xsectools bin/crosssectionTable.txt
+path_input_analyzer
+path_output_analyzer

@@ -46,9 +46,11 @@ print crosssection
 legend = [itag.split("_")[0] for itag in tag_str]
 
 
-print "tag_str rootfileName total_events xsec xsec_weight Legend"# LineColor LineWidth LineStyle FillColor FillStyle"
+# LineColor LineWidth LineStyle FillColor FillStyle"
 #printall=[]
-fout = open('crosssectionTable.txt','w')
+fout = open('../../bin/crosssectionTable.txt','w')
+print >> fout, "tag_str rootfileName total_events xsec xsec_weight Legend" 
+
 for i in range(len(filenameList)):
     to_print = tag_str[i] + " " + filenameList[i] + " " + str(integralList[i]) + " " + str(crosssection[i]) + " " + str(crosssection[i]*lumi/integralList[i]) + " " + legend[i]# + " " + str(1) + " " + str(1) + " " + str(1) + " " + str(1) + " " + str(1)
     print >> fout, to_print

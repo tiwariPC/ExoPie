@@ -11,8 +11,13 @@ from ROOT import TLorentzVector, TH1F
 import time
 
 sys.path.append('utils')
-
+sys.path.append('../utils')
 from MathUtils import * 
+
+
+sys.path.append('../analysistools/xsectools/')
+sys.path.append('analysistools/xsectools/')
+from PlotParameters import xs, xsweight
 #getPt, getEta, getPhi, logical_AND, logical_OR, getMT, Delta_R, logical_AND_List*
 #from pillar import *
 
@@ -59,6 +64,11 @@ style, ststs and systematics still missing
 print "starting clock"
 start = time.clock()
 
+tag_str = infile.split("_13TeV")[0].split("Merged_")[1]
+
+cross_section_weight = xsweight(tag_str)
+
+print infile, tag_str, cross_section_weight
 
 ### dataframe for output 
 df_out = DataFrame(columns=['run', 'lumi', 'event', 'MET', 'MT', 'Njets_PassID', 'Nbjets_PassID','ElePt', 'EleEta', 'ElePhi', 'Jet1Pt', 'Jet1Eta', 'Jet1Phi', 
@@ -377,7 +387,7 @@ for df in read_root(filename,columns=jetvariables, chunksize=125000):
                                         'MET': met_, 'MT': mt_ele[pass_ele_index[0]], 'Njets_PassID': len(pass_jet_cleaned_index_), 'Nbjets_PassID':len(pass_bjetM_eta2p4_index), 
                                         'ElePt':elept[eleidx], 'EleEta':eleeta[eleidx], 'ElePhi':elephi[eleidx], 'Jet1Pt':ak4pt[j1idx], 'Jet1Eta':ak4eta[j1idx], 'Jet1Phi':ak4phi[j1idx],
                                         'Jet2Pt':ak4pt[j2idx],'Jet2Eta':ak4eta[j2idx], 'Jet2Phi':ak4phi[j2idx], 'Jet3Pt':ak4pt[j3idx],'Jet3Eta':ak4eta[j3idx],'Jet3Phi':ak4phi[j3idx], 
-                                        'Jet1Idx':j1idx, 'Jet2Idx':j2idx,'Jet3Idx':j3idx,'weight':3.0 }, ignore_index=True)
+                                        'Jet1Idx':j1idx, 'Jet2Idx':j2idx,'Jet3Idx':j3idx,'weight':cross_section_weight }, ignore_index=True)
                 
             
             
@@ -402,7 +412,7 @@ for df in read_root(filename,columns=jetvariables, chunksize=125000):
                                                           'MET': met_, 'MT': mt_mu[muidx], 'Njets_PassID': len(pass_jet_cleaned_index_), 'Nbjets_PassID':len(pass_bjetM_eta2p4_index),
                                                           'Jet1Pt':ak4pt[j1idx], 'Jet1Eta':ak4eta[j1idx], 'Jet1Phi':ak4phi[j1idx],
                                                           'Jet2Pt':ak4pt[j2idx],'Jet2Eta':ak4eta[j2idx], 'Jet2Phi':ak4phi[j2idx], 'Jet3Pt':ak4pt[j3idx],'Jet3Eta':ak4eta[j3idx],'Jet3Phi':ak4phi[j3idx], 
-                                                          'Jet1Idx':j1idx, 'Jet2Idx':j2idx,'Jet3Idx':j3idx, 'MuPt':mupt[muidx], 'MuEta':mueta[muidx], 'MuPhi':muphi[muidx],'weight':1.0 }, 
+                                                          'Jet1Idx':j1idx, 'Jet2Idx':j2idx,'Jet3Idx':j3idx, 'MuPt':mupt[muidx], 'MuEta':mueta[muidx], 'MuPhi':muphi[muidx],'weight':cross_section_weight }, 
                                                          ignore_index=True)
         
     ''' the dataframe must be merged after each chunksize 
