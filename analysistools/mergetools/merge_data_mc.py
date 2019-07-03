@@ -59,7 +59,10 @@ f=open(inpfilename,"r")
 
 
 os.system("mkdir -p TxtFiles"+"_"+filepref)
-pref="root://eoscms.cern.ch/"
+pref=""
+if isCrab: pref="root://eoscms.cern.ch/"
+if not isCrab: pref=""
+
 filecount=1
 lineminus1=""
 lineminus2=""

@@ -5,7 +5,7 @@ from ROOT import TFile, TH1F
 
 from xsecLibrary  import getXsec
 
-inputfilepath="../../MergedTest/"
+inputfilepath="/tmp/khurana/Merged_tDM_06052019/"
 
 year_ = "2016"
 
@@ -21,7 +21,8 @@ def FindIntegral(filename):
     h_total = TH1F()
     histname = 'h_total_mcweight'
     h_total = infile_.Get(histname)
-    print filename, h_total.Integral()
+    print filename,  h_total.Integral()
+    #print filename, h_total.Integral()
     return h_total.Integral()
 
 
@@ -42,11 +43,18 @@ print tag_str
 crosssection = [getXsec(itag) for itag in tag_str]
 print crosssection
 
-legend = tag_str
+legend = [itag.split("_")[0] for itag in tag_str]
 
 
 print "tag_str rootfileName total_events xsec xsec_weight Legend"# LineColor LineWidth LineStyle FillColor FillStyle"
+#printall=[]
+fout = open('crosssectionTable.txt','w')
 for i in range(len(filenameList)):
     to_print = tag_str[i] + " " + filenameList[i] + " " + str(integralList[i]) + " " + str(crosssection[i]) + " " + str(crosssection[i]*lumi/integralList[i]) + " " + legend[i]# + " " + str(1) + " " + str(1) + " " + str(1) + " " + str(1) + " " + str(1)
-    print to_print
+    print >> fout, to_print
+    #printall.append(to_print)
+    #printall.append("\n")
+    
 
+#fout.write(printall)
+fout.close()

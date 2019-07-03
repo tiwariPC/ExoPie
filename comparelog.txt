@@ -62,31 +62,28 @@ https://github.com/UZHCMS from where some of the packages are taken,
 
 8. please check the id for ele and mu used for the vetoing leptons
 
+ /eos/cms/store/group/phys_exotica/bbMET/2016_skimmer/tDM_06052019
 
 
 ## To do for Deepak: 
+1. check that it works for all the paths 
+2. do you know merging using 
 
-1. this is the input path for rootfile
-/eos/cms/store/group/phys_exotica/bbMET/2016_skimmer/tDM_06052019/
+root://eoscms.cern.ch//eos/cms/store/group/phys_exotica/bbMET/2016_skimmer/tDM_06052019/DYJetsToLL_M-50_HT-600to800_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_MC25ns_LegacyMC_20170328_0000/SkimmedTree_3.root
 
-2. it has sub dirs like TTWJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8_0000/
 
-3. there are many such dirs. 
+is slower w.r.t 
 
-4. i want to merge these rootfiles, 
+/eos/cms/store/group/phys_exotica/bbMET/2016_skimmer/tDM_06052019/DYJetsToLL_M-50_HT-600to800_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_MC25ns_LegacyMC_20170328_0000/SkimmedTree_3.root
 
-5. merge 20 files in a single file, if dir has less than 20, say N then use N files., 
+i think reason is due to the fact first one uses some protocol and that take non-zero time 
 
-6. The input and output path should be configurable, with -i and -o 
 
-7. Number of files to be hadded should be configrable with defaiult value to all. you can set a large number say 900 which is max for hadd.  
 
-8. in the outdir provided by -o make Merged_tDM_06052019 (last string in the input path) 
+/eos/cms/store/group/phys_exotica/bbMET/2016_skimmer/
 
-9. further dir substructure should be exactly like the  Merged_tDM_06052019/Merged_TTWJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8_0000.root   when all is used 
 
-and 
-name should be following when N is provided 
+3. right now it directly write to eos, and eos is not made for this, you ahve to merge it in some other area, /tmp or work area and once one file is merged move it to eos, i think that is what makes it super slow, 
 
-Merged_tDM_06052019/TTWJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8_0000/Merged_SkimmedTree_*.root
 
+4. another thing is it doesn't merge all the data files into one, it is possible to add this feature? 
