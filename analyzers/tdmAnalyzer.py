@@ -377,7 +377,7 @@ for df in read_root(filename,columns=jetvariables, chunksize=125000):
                                         'MET': met_, 'MT': mt_ele[pass_ele_index[0]], 'Njets_PassID': len(pass_jet_cleaned_index_), 'Nbjets_PassID':len(pass_bjetM_eta2p4_index), 
                                         'ElePt':elept[eleidx], 'EleEta':eleeta[eleidx], 'ElePhi':elephi[eleidx], 'Jet1Pt':ak4pt[j1idx], 'Jet1Eta':ak4eta[j1idx], 'Jet1Phi':ak4phi[j1idx],
                                         'Jet2Pt':ak4pt[j2idx],'Jet2Eta':ak4eta[j2idx], 'Jet2Phi':ak4phi[j2idx], 'Jet3Pt':ak4pt[j3idx],'Jet3Eta':ak4eta[j3idx],'Jet3Phi':ak4phi[j3idx], 
-                                        'Jet1Idx':j1idx, 'Jet2Idx':j2idx,'Jet3Idx':j3idx,'weight':1.0 }, ignore_index=True)
+                                        'Jet1Idx':j1idx, 'Jet2Idx':j2idx,'Jet3Idx':j3idx,'weight':3.0 }, ignore_index=True)
                 
             
             
