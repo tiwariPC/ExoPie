@@ -64,6 +64,14 @@ https://github.com/UZHCMS from where some of the packages are taken,
 
  /eos/cms/store/group/phys_exotica/bbMET/2016_skimmer/tDM_06052019
 
+9. Run the mergetool to get the merged files,  
+
+10. From this version onwards, (at least for the Skimmed and Analysis tuples) please use following instruction to name the directory structure, 
+   - Dir to keep the DelPanj Tuples: FatTuples_2016_V0: first digit for major changes
+   - Dir to keep the SkimeFiles: SkimmedTuples_2016_V0p0: first digit for the  FatTuples version number and second digit for the number of times skimming is running. 
+   - Dir to keep the BranchReader analysis files: AnalysisTuples_2016_V0p0p0: Fattuple . Skimming . Analysis 
+
+11. Write the path to all the tuples with a change log in the table made in the Twiki. 
 
 ## To do for Deepak: 
 1. check that it works for all the paths 
@@ -83,7 +91,29 @@ i think reason is due to the fact first one uses some protocol and that take non
 /eos/cms/store/group/phys_exotica/bbMET/2016_skimmer/
 
 
+
 3. right now it directly write to eos, and eos is not made for this, you ahve to merge it in some other area, /tmp or work area and once one file is merged move it to eos, i think that is what makes it super slow, 
 
 
 4. another thing is it doesn't merge all the data files into one, it is possible to add this feature? 
+
+
+## For Raman
+so the package is almost complete now, (two major items remaining), here is plan for tomorrow 
+
+- once you will give me the new skimmed rootfiles
+- i can do the merging of skimmed files and then
+- generate maps for the event weight [1] 
+- will change the veto and cleaning ID for electrons and remove the Jet iD
+- we will sync on ~30 K events like earlier 
+- run the analyzer for Wenu and Wmunu CR
+- make the stack plots [2]
+
+[1]: right now event weight is only cross-section and lumi, other event weight are remaining 
+[2]: only the histo are visible, errors ratio etc need to be added, 
+
+in-spite of these two items remaining, i will run the full chain once and see how it goes, 
+
+as i said i will not have time to implement [1] and [2]. in case you want to see the code and implement (if have time) let me know, you can be helpful in both cases, I know how to do [1], but i still need to search how to do [2]. 
+
+

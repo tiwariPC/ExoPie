@@ -22,6 +22,36 @@ https://matplotlib.org/3.1.0/api/_as_gen/matplotlib.pyplot.hist.html
 
 https://stackoverflow.com/questions/50404913/how-to-change-the-color-palette-for-stackplot-matplotlib
 
+draw error: https://stackoverflow.com/questions/12957582/plot-yerr-xerr-as-shaded-region-rather-than-error-bars
+and 
+https://stackoverflow.com/questions/35390276/how-to-add-error-bars-to-histogram-diagram-in-python/35390509
+
+anf 
+import numpy as np
+import matplotlib.pyplot as plt
+
+plt.style.use('ggplot')
+
+data = np.random.normal(size=10000)
+
+# plt.hist gives you the entries, edges 
+# and drawables we do not need the drawables:
+entries, edges, _ = plt.hist(data, bins=25, range=[-5, 5])
+
+# calculate bin centers
+bin_centers = 0.5 * (edges[:-1] + edges[1:])
+
+# draw errobars, use the sqrt error. You can use what you want there
+# poissonian 1 sigma intervals would make more sense
+plt.errorbar(bin_centers, entries, yerr=np.sqrt(entries), fmt='r.')
+
+plt.show()
+
+
+https://matplotlib.org/gallery/lines_bars_and_markers/errorbar_limits_simple.html#sphx-glr-gallery-lines-bars-and-markers-errorbar-limits-simple-py
+https://matplotlib.org/1.2.1/examples/pylab_examples/errorbar_demo.html
+https://matplotlib.org/3.1.0/gallery/lines_bars_and_markers/bar_stacked.html
+https://www.w3resource.com/graphics/matplotlib/barchart/matplotlib-barchart-exercise-14.php
 
 '''
 

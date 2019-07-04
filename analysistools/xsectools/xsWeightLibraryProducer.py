@@ -5,7 +5,7 @@ from ROOT import TFile, TH1F
 
 from xsecLibrary  import getXsec
 
-inputfilepath="/tmp/khurana/Merged_tDM_06052019/"
+inputfilepath="/tmp/khurana/ExoPieInput_tDM_06052019/"
 
 year_ = "2016"
 
