@@ -58,23 +58,22 @@ def getXsec(samplename):
         'TTWJetsToQQ_TuneCUETP8M1'      : 0.4062,
         'TTZToQQ_TuneCUETP8M1'          : 0.5297,
         'ST_s-channel_4f_leptonDecays'   : 3.36,
-        'ST_t-channel_top_4f_inclusiveDecays':136.02, 
+        'ST_t-channel_top_4f_inclusiveDecays':136.02,
         'ST_t-channel_antitop_4f_inclusiveDecays':80.95, ## may be same as above, in that case change the above str
-        'ST_tW_antitop_5f_inclusiveDecays':35.85,  ## ## may be same as above, in that case change the above str 
+        'ST_tW_antitop_5f_inclusiveDecays':35.85,  ## ## may be same as above, in that case change the above str
         'TTToSemilepton_TuneCUETP8M2_ttHtranche3':364.35,
-        'TTZToLLNuNu_M-10_TuneCUETP8M1':0.2529,  ## ## may be same as above, in that case change the above str 
-        'TTTo2L2Nu_TuneCUETP8M2_ttHtranche3':87.31, ## ## may be same as above, in that case change the above str 
+        'TTZToLLNuNu_M-10_TuneCUETP8M1':0.2529,  ## ## may be same as above, in that case change the above str
+        'TTTo2L2Nu_TuneCUETP8M2_ttHtranche3':87.31, ## ## may be same as above, in that case change the above str
         'ST_tW_top_5f_inclusiveDecays':35.85,  ## ## may be same as above, in that case change the above str
-        'WminusH_HToBB_WToLNu_M125'     : 1, 
-        'WplusH_HToBB_WToLNu_M125':1, 
-        'ggZH_HToBB_ZToLL_M125':1,  
-        'ZH_HToBB_ZToLL_M125':1,  
+        'WminusH_HToBB_WToLNu_M125'     : 0.100,
+        'WplusH_HToBB_WToLNu_M125':0.159,
+        'ggZH_HToBB_ZToLL_M125':0.007842,
+        'ZH_HToBB_ZToLL_M125':0.04865,
         'WW_TuneCUETP8M1':118.7,
-        'WZ_TuneCUETP8M1':47.2, 
-        'ZZ_TuneCUETP8M1':16.6,  
-        'SingleElectron-Run2016.root':1, ## the cross-section will always remain 1 here but the str should change 
+        'WZ_TuneCUETP8M1':47.2,
+        'ZZ_TuneCUETP8M1':16.6,
+        'SingleElectron-Run2016.root':1, ## the cross-section will always remain 1 here but the str should change
         'SingleMu2016.root':1 ## the cross-section will always remain 1 here but the str should change
 
     }
     return xs[samplename]
-
