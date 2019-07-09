@@ -73,6 +73,31 @@ https://github.com/UZHCMS from where some of the packages are taken,
 
 11. Write the path to all the tuples with a change log in the table made in the Twiki. 
 
+12. For the limit give all the details, e.g. these numbers doesn';t make sense unless i know how the signal was normalised,  which signal mass point it is,  and what was the command., only signal fit or simultaneous fit. plus most of the technical details, which commands and script were executed, what changes were made to the datacards nad rootifles,binning etc 
+
+13. can you tell me why change in ons will not change limit for cnc but will change to shape 
+
+14. comparison of the yield, shapes and limit, efficiency, lumi, cross-section and all other inputs with Spandan
+
+15. fixing all the SFs, 
+
+16. filling path in bbDM twiki 
+
+17. 
+
+
+
+
+
+
+
+
+
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 ## To do for Deepak: 
 1. check that it works for all the paths 
 2. do you know merging using 

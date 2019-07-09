@@ -49,7 +49,7 @@ def getXsec(samplename):
         'WZTo1L3Nu'                     : 3.0330,
         'WZTo2L2Q'                      : 5.5950,
         'WZTo2Q2Nu'                     : 6.4880,
-        'WZTo3LNu_TuneCUETP8M1'                      : 4.4297,
+        'WZTo3LNu_TuneCUETP8M1'         : 4.4297,
         'ZZTo2L2Q'                      : 3.22,
         'ZZTo2Q2Nu'                     : 4.04,
         'ZZTo4L'                        : 1.2120,
