@@ -31,7 +31,7 @@ print "starting clock"
 start = time.clock()
 
 
-debug_=False
+debug_=True
 
 usage = "analyzer for t+DM (debugging) "
 parser = argparse.ArgumentParser(description=usage)
@@ -43,6 +43,7 @@ args = parser.parse_args()
 
 infile = args.inputfile
 print 'outfile= ', args.outputfile
+
 
 '''
 ## https://engineering.upside.com/a-beginners-guide-to-optimizing-pandas-code-for-speed-c09ef2c6a4d6
@@ -93,7 +94,7 @@ def runtdm(infile_):
     
     
 
-    jetvariables = ['st_THINnJet','st_THINjetPx','st_THINjetPy','st_THINjetPz','st_THINjetEnergy', 'st_THINjetCISVV2','st_THINjetHadronFlavor','st_THINjetNHadEF','st_THINjetCHadEF','st_THINjetCEmEF','st_THINjetPhoEF','st_THINjetEleEF','st_THINjetMuoEF','st_THINjetCorrUnc','st_runId','st_lumiSection','st_eventId','st_pfMetCorrPt','st_pfMetCorrPhi','st_pfMetUncJetResUp','st_pfMetUncJetResDown','st_pfMetUncJetEnUp','st_pfMetUncJetEnDown','st_isData','st_HLT_IsoMu24_v','st_HLT_IsoTkMu24_v','st_HLT_IsoMu27_v','st_HLT_IsoTkMu27_v','st_HLT_Ele27_WPTight_Gsf_v','st_HLT_Ele27_WPLoose_Gsf_v','st_HLT_Ele105_CaloIdVT_GsfTrkIdT_v','st_HLT_Ele115_CaloIdVT_GsfTrkIdT_v','st_HLT_Ele32_WPTight_Gsf_v','st_HLT_Ele32_eta2p1_WPTight_Gsf_v','st_HLT_Ele27_eta2p1_WPTight_Gsf_v','st_THINnJet','st_THINjetPx','st_THINjetPy','st_THINjetPz','st_THINjetEnergy','st_THINjetCISVV2','st_THINjetHadronFlavor','st_THINjetNHadEF','st_THINjetCHadEF','st_THINjetCEmEF','st_THINjetPhoEF','st_THINjetEleEF','st_THINjetMuoEF','st_THINjetCorrUnc','st_nEle','st_elePx','st_elePy','st_elePz','st_eleEnergy','st_eleIsPassTight','st_nMu','st_muPx','st_muPy','st_muPz','st_muEnergy','st_isTightMuon','st_muIso']
+    jetvariables = ['st_THINnJet','st_THINjetPx','st_THINjetPy','st_THINjetPz','st_THINjetEnergy', 'st_THINjetCISVV2','st_THINjetHadronFlavor','st_THINjetNHadEF','st_THINjetCHadEF','st_THINjetCEmEF','st_THINjetPhoEF','st_THINjetEleEF','st_THINjetMuoEF','st_THINjetCorrUnc','st_runId','st_lumiSection','st_eventId','st_pfMetCorrPt','st_pfMetCorrPhi','st_pfMetUncJetResUp','st_pfMetUncJetResDown','st_pfMetUncJetEnUp','st_pfMetUncJetEnDown','st_isData','st_HLT_IsoMu24_v','st_HLT_IsoTkMu24_v','st_HLT_IsoMu27_v','st_HLT_IsoTkMu27_v','st_HLT_Ele27_WPTight_Gsf_v','st_HLT_Ele27_WPLoose_Gsf_v','st_HLT_Ele105_CaloIdVT_GsfTrkIdT_v','st_HLT_Ele115_CaloIdVT_GsfTrkIdT_v','st_HLT_Ele32_WPTight_Gsf_v','st_HLT_Ele32_eta2p1_WPTight_Gsf_v','st_HLT_Ele27_eta2p1_WPTight_Gsf_v','st_THINnJet','st_THINjetPx','st_THINjetPy','st_THINjetPz','st_THINjetEnergy','st_THINjetCISVV2','st_THINjetHadronFlavor','st_THINjetNHadEF','st_THINjetCHadEF','st_THINjetCEmEF','st_THINjetPhoEF','st_THINjetEleEF','st_THINjetMuoEF','st_THINjetCorrUnc','st_nEle','st_elePx','st_elePy','st_elePz','st_eleEnergy','st_eleIsPassLoose', 'st_eleIsPassTight','st_nMu','st_muPx','st_muPy','st_muPz','st_muEnergy','st_isTightMuon','st_muIso', 'st_HPSTau_n']
 
     filename = infile_
 
@@ -122,22 +123,6 @@ def runtdm(infile_):
     jet_N_bmedium_eta2p4_pt30=[]
     
     hlt_ele=[]
-    elept_=[]
-    eleeta_=[]
-    elephi_=[]
-    ele_pt30_=[]
-    ele_IDTight_=[]
-    ele_eta2p1_=[]
-    mt_ele_=[]
-    mt_mu_=[]
-    
-    Nmu_=[]
-    mupt_=[]
-    mueta_=[]
-    muphi_=[]
-    mu_IDTight_=[]
-    mu_IsoTight_=[]
-    mu_pt30_=[]
     
     met_250_=[]
     for df in read_root(filename,columns=jetvariables, chunksize=125000):
@@ -147,25 +132,25 @@ def runtdm(infile_):
         as a small rootfile. An example of how to add new variable and copy the new dataframe into 
         a bigger dataframe is shown below. This is the by far fastest method I manage to find, uproot
         awkward arrays are even faster but difficult to use on lxplus. and may be on condor.  ''' 
-        for nak4jet_, ak4px_, ak4py_, ak4pz_, ak4e_, ak4csv, ak4flavor, ak4NHEF, ak4CHEF, ak4CEmEF, ak4PhEF, ek4EleEF, ak4MuEF, ak4JEC, hlt_ele27, hlt_ele105, hlt_ele115, hlt_ele32, hlt_ele32_eta2p1, hlt_ele27_eta2p1, nele_, elepx_, elepy_, elepz_, elee_, eletightid_, nmu_, mupx_, mupy_, mupz_, mue_, mutightid_, muIso_, met_, metphi_, run, lumi, event in zip(df.st_THINnJet, df.st_THINjetPx, df.st_THINjetPy, df.st_THINjetPz, df.st_THINjetEnergy, df.st_THINjetCISVV2, df.st_THINjetHadronFlavor, df.st_THINjetNHadEF, df.st_THINjetCHadEF, df.st_THINjetCEmEF, df.st_THINjetPhoEF, df.st_THINjetEleEF, df.st_THINjetMuoEF, df.st_THINjetCorrUnc, df.st_HLT_Ele27_WPLoose_Gsf_v, df.st_HLT_Ele105_CaloIdVT_GsfTrkIdT_v, df.st_HLT_Ele115_CaloIdVT_GsfTrkIdT_v, df.st_HLT_Ele32_WPTight_Gsf_v, df.st_HLT_Ele32_eta2p1_WPTight_Gsf_v, df.st_HLT_Ele27_eta2p1_WPTight_Gsf_v, df.st_nEle, df.st_elePx, df.st_elePy, df.st_elePz, df.st_eleEnergy, df.st_eleIsPassTight, df.st_nMu, df.st_muPx, df.st_muPy, df.st_muPz, df.st_muEnergy, df.st_isTightMuon, df.st_muIso, df.st_pfMetCorrPt, df.st_pfMetCorrPhi, df.st_runId, df.st_lumiSection, df.st_eventId):
+        for nak4jet_, ak4px_, ak4py_, ak4pz_, ak4e_, ak4csv, ak4flavor, ak4NHEF, ak4CHEF, ak4CEmEF, ak4PhEF, ek4EleEF, ak4MuEF, ak4JEC, hlt_ele27, hlt_ele105, hlt_ele115, hlt_ele32, hlt_ele32_eta2p1, hlt_ele27_eta2p1, nele_, elepx_, elepy_, elepz_, elee_, elelooseid_, eletightid_, nmu_, mupx_, mupy_, mupz_, mue_, mutightid_, muIso_, met_, metphi_, run, lumi, event, nTau in zip(df.st_THINnJet, df.st_THINjetPx, df.st_THINjetPy, df.st_THINjetPz, df.st_THINjetEnergy, df.st_THINjetCISVV2, df.st_THINjetHadronFlavor, df.st_THINjetNHadEF, df.st_THINjetCHadEF, df.st_THINjetCEmEF, df.st_THINjetPhoEF, df.st_THINjetEleEF, df.st_THINjetMuoEF, df.st_THINjetCorrUnc, df.st_HLT_Ele27_WPLoose_Gsf_v, df.st_HLT_Ele105_CaloIdVT_GsfTrkIdT_v, df.st_HLT_Ele115_CaloIdVT_GsfTrkIdT_v, df.st_HLT_Ele32_WPTight_Gsf_v, df.st_HLT_Ele32_eta2p1_WPTight_Gsf_v, df.st_HLT_Ele27_eta2p1_WPTight_Gsf_v, df.st_nEle, df.st_elePx, df.st_elePy, df.st_elePz, df.st_eleEnergy, df.st_eleIsPassLoose, df.st_eleIsPassTight, df.st_nMu, df.st_muPx, df.st_muPy, df.st_muPz, df.st_muEnergy, df.st_isTightMuon, df.st_muIso, df.st_pfMetCorrPt, df.st_pfMetCorrPhi, df.st_runId, df.st_lumiSection, df.st_eventId, df.st_HPSTau_n):
             
-            if debug_: print "ievent = ",ieve
-
+            print "ievent = ",ieve
+            
+            
             ieve=ieve+1
             if debug_: print nak4jet_, ak4px_, ak4py_, ak4pz_, ak4e_
             
             '''
             *******   *****   *******
-            *      *          *
-            *      ****       *
-            *      *          *
-            ***        *****      *
+               *      *          *
+               *      ****       *
+               *      *          *
+            ***       *****      *
             '''
             
             ''' This small block compute the pt of the jet and add them back 
             into the original dataframe as a next step for further usage. '''
             ak4pt = [getPt(ak4px_[ij], ak4py_[ij]) for ij in range(nak4jet_)]
-            #print ak4pt
             jetptseries.append(ak4pt)
             
             
@@ -243,26 +228,26 @@ def runtdm(infile_):
             eleeta = [getEta(elepx_[ie], elepy_[ie], elepz_[ie]) for ie in range(nele_)]
             elephi = [getPhi(elepx_[ie], elepy_[ie]) for ie in range(nele_)]
             ''' electron pt and eta cut, tuples already have electron pT > 10 GeV and |eta|<2.5
-            Loose electron ID is also applied on the electron at preselection level '''
+            Veto electron ID is also applied on the electron at preselection level '''
+            ele_pt10  =[(elept[ie] > 10)  for ie in range(nele_)]
             ele_pt30  =[(elept[ie] > 30)  for ie in range(nele_)]
+            
+            ele_IDLoose = [(elelooseid_[ie])  for ie in range(nele_)]
             ele_IDTight = [(eletightid_[ie])  for ie in range(nele_)]
             ele_eta2p1 = [(abs(eleeta[ie]) < 2.1)  for ie in range(nele_)]
+            ele_eta2p5 = [(abs(eleeta[ie]) < 2.5)  for ie in range(nele_)]
+            
+            ele_pt10_eta2p5_vetoID=[]
+            if len(ele_pt10)>0:    ele_pt10_eta2p5_vetoID = logical_AND_List2(ele_pt10, ele_eta2p5)
+            
+            
+            
             
             if debug_:  print "ele info"
             if debug_:  print "pt, id eta =", ele_pt30, ele_IDTight, ele_eta2p1
             if debug_:  
                 for ie in range(nele_): print elept[ie], eleeta[ie], eletightid_[ie], elepx_[ie], elepy_[ie], elepz_[ie]
-            #print "debuging", ele_eta2p1, ele_IDTight, ele_pt30 
-            #print ele_pt30, ele_IDTight, ele_eta2p1
-            elept_.append(elept)
-            eleeta_.append(eleeta)
-            elephi_.append(elephi)
-            ele_pt30_.append(ele_pt30)
-            ele_IDTight_.append(ele_IDTight)
-            ele_eta2p1_.append(ele_eta2p1)
             
-            
-            ''' electron ID and Isolation, '''
             
             '''
             
@@ -284,35 +269,31 @@ def runtdm(infile_):
             muphi = [getPhi(mupx_[imu], mupy_[imu]) for imu in range(nmu_)]
             
             ''' For vetoing in the electron region only Looose Mu ID and ISo with pt > 10 GeV is needed and is already applied in the skimmer '''
+            mu_pt10 = [ (mupt[imu] > 10.0) for imu in range(nmu_)]
             mu_pt30 = [ (mupt[imu] > 30.0) for imu in range(nmu_)]
+            mu_eta2p4 =  [ (abs(mueta[imu]) < 2.4) for imu in range(nmu_)]
             mu_IDTight  = [mutightid_[imu] for imu in range(nmu_)]
             mu_IsoTight = [(muIso_[imu]<0.15) for imu in range(nmu_)]
             
-            
-            Nmu_.append(nmu_)
-            mupt_.append(mupt)
-            mueta_.append(mueta)
-            muphi_.append(muphi)
-            
-            mu_IDTight_.append(mu_IDTight)
-            mu_IsoTight_.append(mu_IsoTight)
-            mu_pt30_.append(mu_pt30)
-            
-            
+            mu_pt10_eta2p4_looseID=[]
+            if len(mu_pt10): mu_pt10_eta2p4_looseID = logical_AND_List2(mu_pt10, mu_eta2p4)
             
             
             ''' MET SELECTION '''
             met_250_.append( met_ > 250.0 )
             
             
-            ''' MT Selection ''' 
+            ''' MT Calculation for electrons ''' 
             mt_ele =  [ getMT(elept[ie], met_, elephi[ie], metphi_) for ie in range(nele_)   ]
-            mt_ele_.append(mt_ele)
+            #mt_ele_.append(mt_ele)
             
             
-            ''' MT Selection ''' 
+            
+            ''' MT Calculation for muons ''' 
             mt_mu =  [ getMT(mupt[imu], met_, muphi[imu], metphi_) for imu in range(nmu_)   ]
-            mt_mu_.append(mt_mu)
+            #mt_mu_.append(mt_mu)
+            
+            
             
             ''' 
             Event selection to count the number of events. 
@@ -339,22 +320,22 @@ def runtdm(infile_):
             '''
             pass_ele_index = WhereIsTrue(ele_eta2p1_idT_pt30, 1) 
             
+            pass_veto_id_ele_index = WhereIsTrue(ele_pt10_eta2p5_vetoID,1)
+
+            
             mu_eta2p4_idT_pt30=[]
             if (len(mu_pt30)>0):              mu_eta2p4_idT_pt30 = logical_AND_List3(mu_pt30, mu_IDTight, mu_IsoTight)
             
             pass_mu_index = WhereIsTrue(mu_eta2p4_idT_pt30,1)
             
+
+
             ak4_pt30_eta4p5_IDL=[]
-            if len(ak4_pt30)>0:             ak4_pt30_eta4p5_IDL = logical_AND_List3(ak4_pt30, ak4_eta4p5, ak4_IDtightVeto)
+            if len(ak4_pt30)>0:             ak4_pt30_eta4p5_IDL = logical_AND_List2(ak4_pt30, ak4_eta4p5)
             
             ''' we need at least 3 jets passing id, so we must ensure presene of 3 jets atleast '''
             pass_jet_index= WhereIsTrue(ak4_pt30_eta4p5_IDL, 3)
             
-            
-            ak4_bjetM_eta2p4= []
-            if len(ak4_csvmedium)>0:         ak4_bjetM_eta2p4 = logical_AND_List3 (ak4_csvmedium, ak4_eta2p4, ak4_IDtightVeto)
-            
-            pass_bjetM_eta2p4_index= WhereIsTrue(ak4_bjetM_eta2p4, 1)
             
             ''' 
             
@@ -362,107 +343,102 @@ def runtdm(infile_):
             region specific cuts are here. 
             
             '''
+
             
-            pass_jet_cleaned_index_ = pass_jet_index
-            ''' jet cleaning '''
-            ## jet cleaning is switched off for now, because the TightLeptonVeto Jet ID is being used. 
-            ## pass_jet_cleaned_index_ = [pass_jet_index[ij] for ij in range(len(pass_jet_index)) if Delta_R( ak4eta[ij], eleeta[eleidx], ak4phi[ij], elephi[eleidx]) > 0.4 ]
+            jetCleanAgainstEle=[]
+            for ijet in range(len(ak4_pt30_eta4p5_IDL)):
+                pass_ijet_iele_=[]
+                for iele in range(len(ele_pt10_eta2p5_vetoID)):
+                    pass_ijet_iele_.append(ak4_pt30_eta4p5_IDL[ijet] & ele_pt10_eta2p5_vetoID[iele] & ( Delta_R (ak4eta[ijet], eleeta[iele], ak4phi[ijet], elephi[iele]) > 0.4 ) )
+                print "pass_ijet_iele_ = ",pass_ijet_iele_
+                ## if the number of true is equal to length of vector then it is ok to keep this jet, otherwise this is not cleaned 
+                jetCleanAgainstEle.append( len(WhereIsTrue(pass_ijet_iele_))==len(pass_ijet_iele_)  )
+                print "jetCleanAgainstEle = ", jetCleanAgainstEle
             
-            ''' now apply all the selection '''
-            if (len(pass_ele_index) >0) and (len(pass_jet_cleaned_index_)>=3):
-                
+            jetCleanAgainstMu=[]
+            for ijet in range(len(ak4_pt30_eta4p5_IDL)):
+                pass_ijet_imu_=[]
+                for imu in range(len(mu_pt10_eta2p4_looseID)):
+                    pass_ijet_imu_.append(ak4_pt30_eta4p5_IDL[ijet] & mu_pt10_eta2p4_looseID[imu] & ( Delta_R (ak4eta[ijet], mueta[imu], ak4phi[ijet], muphi[imu]) > 0.4 ) )
+                ## if the number of true is equal to length of vector then it is ok to keep this jet, otherwise this is not cleaned 
+                print "pass_ijet_imu_ = ",pass_ijet_imu_
+                jetCleanAgainstMu.append(len(WhereIsTrue(pass_ijet_imu_)) == len(pass_ijet_imu_) )
+                print "jetCleanAgainstMu = ",jetCleanAgainstMu
+            jetCleaned = logical_AND_List2(jetCleanAgainstEle, jetCleanAgainstMu )
+            print "jetCleaned = ",jetCleaned
+                        
+            print "nele, nmu = ", ele_pt10_eta2p5_vetoID, mu_pt10_eta2p4_looseID
+            
+            
+            pass_jet_index_cleaned=[]
+            pass_jet_index_cleaned = WhereIsTrue(jetCleaned, 3)
+            
+            print "pass_jet_index_cleaned = ",pass_jet_index_cleaned
+            
+            ak4_bjetM_eta2p4= []
+            if len(ak4_csvmedium)>0:    ak4_bjetM_eta2p4 = logical_AND_List3 (ak4_csvmedium, ak4_eta2p4, jetCleaned) 
+            pass_bjetM_eta2p4_index = WhereIsTrue(ak4_bjetM_eta2p4, 1)
+            
+            
+            j1idx=-1
+            j2idx=-1
+            j3idx=-1
+            
+            wenu_cr = False
+            if len(pass_ele_index) >0: 
                 eleidx = pass_ele_index[0]
-                j1idx  = pass_jet_cleaned_index_[0]
-                j2idx  = pass_jet_cleaned_index_[1]
-                j3idx  = pass_jet_cleaned_index_[2]
+                wenu_cr = logical_AND( [len(ele_pt10_eta2p5_vetoID)==1, len(pass_ele_index)==1, nmu_==0, met_>250.0, len(pass_jet_index_cleaned)>=3, len(pass_bjetM_eta2p4_index)==0, 
+                                        mt_ele[pass_ele_index[0]]<160., (nTau==0)])
+                if len(pass_jet_index_cleaned) >= 3:
+                    j1idx=pass_jet_index_cleaned[0]
+                    j2idx=pass_jet_index_cleaned[1]
+                    j3idx=pass_jet_index_cleaned[2]
                 
+                
+                                            
+            if wenu_cr:
+                df_out = df_out.append({'run':run, 'lumi':lumi, 'event':event, 
+                                        'MET': met_, 'MT': mt_ele[pass_ele_index[0]], 'Njets_PassID': len(pass_jet_index_cleaned), 'Nbjets_PassID':len(pass_bjetM_eta2p4_index), 
+                                        'ElePt':elept[eleidx], 'EleEta':eleeta[eleidx], 'ElePhi':elephi[eleidx], 'Jet1Pt':ak4pt[j1idx], 'Jet1Eta':ak4eta[j1idx], 'Jet1Phi':ak4phi[j1idx],
+                                        'Jet2Pt':ak4pt[j2idx],'Jet2Eta':ak4eta[j2idx], 'Jet2Phi':ak4phi[j2idx], 'Jet3Pt':ak4pt[j3idx],'Jet3Eta':ak4eta[j3idx],'Jet3Phi':ak4phi[j3idx], 
+                                        'Jet1Idx':j1idx, 'Jet2Idx':j2idx,'Jet3Idx':j3idx,'weight':cross_section_weight }, ignore_index=True)
             
-                wenu_cr = logical_AND( [len(pass_ele_index)==1, nmu_==0, met_>250.0, len(pass_jet_index)>=3, len(pass_bjetM_eta2p4_index)==0, mt_ele[pass_ele_index[0]]<160.]) #, Delta_R(ak4eta[j1idx], eleeta[eleidx],ak4phi[j1idx], elephi[eleidx]) > 0.4 , Delta_R(ak4eta[j2idx], eleeta[eleidx],ak4phi[j2idx], elephi[eleidx]) > 0.4 , Delta_R(ak4eta[j3idx], eleeta[eleidx],ak4phi[j3idx], elephi[eleidx]) > 0.4  ])
-                
-                #print "Wjet selection =", len(pass_ele_index)==1, nmu_==0, met_>250.0, len(pass_jet_index)>=3, len(pass_bjetM_eta2p4_index)==0, mt_ele[pass_ele_index[0]]<160., wenu_cr
                 if debug_:  print "object info", wenu_cr,  run, lumi, event, eleidx, elept[eleidx], eleeta[eleidx], elephi[eleidx], j1idx, ak4pt[j1idx], ak4eta[j1idx], ak4phi[j1idx], j2idx, ak4pt[j2idx], ak4eta[j2idx], ak4phi[j2idx], j3idx, ak4pt[j3idx], ak4eta[j3idx], ak4phi[j3idx], met_, mt_ele[pass_ele_index[0]], [len(pass_ele_index)==1, nmu_==0, met_>250.0, len(pass_jet_index)>=3, len(pass_bjetM_eta2p4_index)==0, mt_ele[pass_ele_index[0]]<160.]
-                #print wenu_cr, run, lumi, event
-                
-                
-                ''' converti this infor a function '''
-                if wenu_cr:
-                    df_out = df_out.append({'run':run, 'lumi':lumi, 'event':event, 
-                                            'MET': met_, 'MT': mt_ele[pass_ele_index[0]], 'Njets_PassID': len(pass_jet_cleaned_index_), 'Nbjets_PassID':len(pass_bjetM_eta2p4_index), 
-                                            'ElePt':elept[eleidx], 'EleEta':eleeta[eleidx], 'ElePhi':elephi[eleidx], 'Jet1Pt':ak4pt[j1idx], 'Jet1Eta':ak4eta[j1idx], 'Jet1Phi':ak4phi[j1idx],
-                                            'Jet2Pt':ak4pt[j2idx],'Jet2Eta':ak4eta[j2idx], 'Jet2Phi':ak4phi[j2idx], 'Jet3Pt':ak4pt[j3idx],'Jet3Eta':ak4eta[j3idx],'Jet3Phi':ak4phi[j3idx], 
-                                            'Jet1Idx':j1idx, 'Jet2Idx':j2idx,'Jet3Idx':j3idx,'weight':cross_section_weight }, ignore_index=True)
                     
                     
                     
                     
+            
+            ''' W mu nu CR ''' 
+            j1idx=-1
+            j2idx=-1
+            j3idx=-1
+            
+            wmunu_cr = False
+            if len(pass_mu_index) >0: 
+                muidx = pass_mu_index[0]
+                wmunu_cr = logical_AND( [len(mu_pt10_eta2p4_looseID)==1, len(pass_mu_index)==1, nele_==0, met_>250.0, len(pass_jet_index_cleaned)>=3, len(pass_bjetM_eta2p4_index)==0, mt_mu[muidx]<160.,
+                                         (nTau==0)])
+                if len(pass_jet_index_cleaned) >= 3:
+                    j1idx=pass_jet_index_cleaned[0]
+                    j2idx=pass_jet_index_cleaned[1]
+                    j3idx=pass_jet_index_cleaned[2]
+
+                        
                     
 
-            ''' W mu nu CR ''' 
-            pass_jet_cleaned_index_ = pass_jet_index
-            
-            if ( len(pass_mu_index) > 0) and (len(pass_jet_index)>=3):
-                muidx = pass_mu_index[0]
-                ''' right now we are assuming that leptonveto jet id is enough for cleaning so no more cleaning required '''
-                j1idx  = pass_jet_cleaned_index_[0]
-                j2idx  = pass_jet_cleaned_index_[1]
-                j3idx  = pass_jet_cleaned_index_[2]
                 
-                wmunu_cr = logical_AND( [len(pass_mu_index)==1, nele_==0, met_>250.0, len(pass_jet_index)>=3, len(pass_bjetM_eta2p4_index)==0, mt_mu[muidx]<160.])
-                
-                if debug_:  print "object info mu ", wmunu_cr,  run, lumi, event, mupt[muidx], mueta[muidx], muphi[muidx], j1idx, ak4pt[j1idx], ak4eta[j1idx], ak4phi[j1idx], j2idx, ak4pt[j2idx], ak4eta[j2idx], ak4phi[j2idx], j3idx, ak4pt[j3idx], ak4eta[j3idx], ak4phi[j3idx], met_, mt_mu[pass_mu_index[0]], [len(pass_mu_index)==1, nmu_==1, met_>250.0, len(pass_jet_index)>=3, len(pass_bjetM_eta2p4_index)==0, mt_mu[pass_mu_index[0]]<160.]
+                print "object info mu ", wmunu_cr,  run, lumi, event, mupt[muidx], mueta[muidx], muphi[muidx], j1idx, ak4pt[j1idx], ak4eta[j1idx], ak4phi[j1idx], j2idx, ak4pt[j2idx], ak4eta[j2idx], ak4phi[j2idx], j3idx, ak4pt[j3idx], ak4eta[j3idx], ak4phi[j3idx], met_, mt_mu[pass_mu_index[0]], [len(pass_mu_index)==1, nmu_==1, met_>250.0, len(pass_jet_index)>=3, len(pass_bjetM_eta2p4_index)==0, mt_mu[pass_mu_index[0]]<160.]
                 if wmunu_cr:
                     df_out_wmunu_cr = df_out_wmunu_cr.append({'run':run, 'lumi':lumi, 'event':event, 
-                                                              'MET': met_, 'MT': mt_mu[muidx], 'Njets_PassID': len(pass_jet_cleaned_index_), 'Nbjets_PassID':len(pass_bjetM_eta2p4_index),
+                                                              'MET': met_, 'MT': mt_mu[muidx], 'Njets_PassID': len(pass_jet_index_cleaned), 'Nbjets_PassID':len(pass_bjetM_eta2p4_index),
                                                               'Jet1Pt':ak4pt[j1idx], 'Jet1Eta':ak4eta[j1idx], 'Jet1Phi':ak4phi[j1idx],
                                                               'Jet2Pt':ak4pt[j2idx],'Jet2Eta':ak4eta[j2idx], 'Jet2Phi':ak4phi[j2idx], 'Jet3Pt':ak4pt[j3idx],'Jet3Eta':ak4eta[j3idx],
                                                               'Jet3Phi':ak4phi[j3idx],  'Jet1Idx':j1idx, 'Jet2Idx':j2idx,'Jet3Idx':j3idx, 'MuPt':mupt[muidx], 'MuEta':mueta[muidx], 
                                                               'MuPhi':muphi[muidx],'weight':cross_section_weight }, 
                                                              ignore_index=True)
                     
-        ''' the dataframe must be merged after each chunksize 
-        Following code must be in the dataframe chunksize loop, 
-        otherwise it will be completely wrong. '''
-        
-        ''' right now we don't need all these big Series in the dataframe, we can save them in the rootfile and plot ''' 
-        
-        '''
-        df['ak4pt_'] = Series(jetptseries)
-        df['ak4eta_'] = Series(jetetaseries)
-        df['ak4phi_'] = Series(jetphiseries)
-        df['ak4_pt30_'] = Series(jet_pt30)
-        df['ak4_pt50_'] = Series(jet_pt50)
-        df['ak4_eta4p5'] = Series(jet_eta4p5)
-        df['ak4_eta2p4'] = Series(jet_eta2p4)
-        df['ak4_NJ_pt30'] = Series(jet_NJpt30)
-        df['ak4_NJ_pt30_eta4p5'] = Series(jet_NJpt30_Eta4p5)
-        
-        df['hlt_ele'] = Series(hlt_ele)
-        df['elept_'] = Series(elept_)
-        df['eleeta_'] = Series(eleeta_)
-        df['elephi_'] = Series(elephi_)
-        df['ele_pt30_'] = Series(ele_pt30_)
-        df['ele_IDTight_'] = Series(ele_IDTight_)
-        df['ele_eta2p1_'] = Series(ele_eta2p1_)
-        
-        
-        df['nmu_'] = Series(nmu_)
-        df['mupt_'] = Series(mupt_)
-        df['mueta_'] = Series(mueta_)
-        df['muphi_'] = Series(muphi_)
-        
-        df['met_250_'] = Series(met_250_)
-        
-        '''
-        
-        #df[''] = Series()
-        
-        ''' 
-        
-        Join the new branched to alredy existing dataframe 
-        
-        '''
-        
-        #df[] = Series()
+
         df_all = concat([df_all,df])
     
     if debug_:     print df_out    
@@ -477,20 +453,16 @@ def runtdm(infile_):
     end = time.clock()
     print "%.4gs" % (end-start)
 
-files=['/tmp/khurana/ExoPieInput_tDM_06052019/Merged_WJetsToLNu_HT-400To600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_MC25ns_LegacyMC_20170328_0000_1.root', '/tmp/khurana/ExoPieInput_tDM_06052019/Merged_WJetsToLNu_HT-400To600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_MC25ns_LegacyMC_20170328_0000_2.root']
+#files=['/tmp/khurana/ExoPieInput_tDM_06052019/Merged_WJetsToLNu_HT-400To600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_MC25ns_LegacyMC_20170328_0000_1.root', '/tmp/khurana/ExoPieInput_tDM_06052019/Merged_WJetsToLNu_HT-400To600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_MC25ns_LegacyMC_20170328_0000_2.root']
+
+
+files=['/tmp/khurana/Merged_ZJetsToNuNu_HT-600To800_13TeV-madgraph_MC25ns_LegacyMC_20170328_0000.root']
 if __name__ == '__main__':
     try:
-        pool = mp.Pool(4)
+        pool = mp.Pool(1)
         pool.map(runtdm,files)
         pool.close()
     except Exception as e:
         print e
         pass
         
-        
-
-
-
-
-
-
