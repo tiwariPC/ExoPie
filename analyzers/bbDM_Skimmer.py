@@ -28,7 +28,7 @@ print "starting clock"
 start = time.clock()
 
 
-debug_ = True
+debug_ = False
 
 usage = "analyzer for t+DM (debugging) "
 parser = argparse.ArgumentParser(description=usage)
@@ -79,10 +79,8 @@ def runtdm(infile_):
     print infile_
 
     # dataframe for output
-    df_out = DataFrame(columns=['run', 'lumi', 'event', 'MET', 'MT_ele','MT_mu', 'Njets_PassID', 'Nbjets_PassID', 'Ele1Pt', 'Ele1Eta', 'Ele1Phi','Ele2Pt', 'Ele2Eta', 'Ele2Phi', 'Mu1Pt', 'Mu1Eta', 'Mu1Phi','Mu2Pt', 'Mu2Eta', 'Mu2Phi','nTau','Jet1Pt','Jet1Eta', 'Jet1Phi', 'Jet2Pt', 'Jet2Eta', 'Jet2Phi', 'Jet3Pt', 'Jet3Eta', 'Jet3Phi', 'Jet1Idx', 'Jet2Idx', 'Jet3Idx'])
-
-    recoil_den = TH1F("recoil_den", "recoil_den", 100, 0.0, 1000.)
-    recoil_num = TH1F("recoil_num", "recoil_num", 100, 0.0, 1000.)
+    #df_out = DataFrame(columns=['run', 'lumi', 'event', 'MET', 'MT_ele','MT_mu', 'Njets_PassID', 'Nbjets_PassID', 'Ele1Pt', 'Ele1Eta', 'Ele1Phi','Ele2Pt', 'Ele2Eta', 'Ele2Phi', 'Mu1Pt', 'Mu1Eta', 'Mu1Phi','Mu2Pt', 'Mu2Eta', 'Mu2Phi','nTau','Jet1Pt','Jet1Eta', 'Jet1Phi', 'Jet2Pt', 'Jet2Eta', 'Jet2Phi', 'Jet3Pt', 'Jet3Eta', 'Jet3Phi', 'Jet1Idx', 'Jet2Idx', 'Jet3Idx','ele_vect'])
+    df_out = DataFrame(columns=['run', 'lumi', 'event', 'MET', 'Njets_PassID', 'Nbjets_PassID', 'mu_vect','jet_vect','ele_vect'])
 
     jetvariables = ['THINnJet', 'THINjetPx', 'THINjetPy', 'THINjetPz', 'THINjetEnergy', 'THINjetCISVV2', 'THINjetHadronFlavor', 'THINjetNHadEF', 'THINjetCHadEF', 'THINjetCEmEF', 'THINjetPhoEF', 'THINjetEleEF', 'THINjetMuoEF', 'THINjetCorrUncUp', 'runId', 'lumiSection', 'eventId', 'pfMetCorrPt', 'pfMetCorrPhi', 'pfMetCorrUnc', 'isData','hlt_trigName','hlt_trigResult', 'nEle', 'elePx', 'elePy', 'elePz', 'eleEnergy', 'eleIsPassLoose', 'eleIsPassTight', 'nMu', 'muPx', 'muPy', 'muPz', 'muEnergy', 'isTightMuon','muChHadIso', 'muNeHadIso', 'muGamIso', 'muPUPt', 'muCharge', 'HPSTau_n','HPSTau_Px','HPSTau_Py','HPSTau_Pz','HPSTau_Energy','disc_decayModeFinding','disc_byLooseIsolationMVA3oldDMwLT']
 
@@ -96,20 +94,6 @@ def runtdm(infile_):
     df_all = DataFrame()
 
     ieve = 0
-    jetptseries = []
-    jetetaseries = []
-    jetphiseries = []
-    jet_pt30 = []
-    jet_pt50 = []
-    jet_eta4p5 = []
-    jet_IDtightVeto = []
-    jet_eta2p4 = []
-    jet_NJpt30 = []
-    jet_NJpt30_Eta4p5 = []
-    jet_csvmedium = []
-    jet_N_bmedium_eta2p4_pt30 = []
-    hlt_ele = []
-    met_250_ = []
     for df in read_root(filename, columns=jetvariables, chunksize=125000):
         icount = icount + 1
         ''' all the operations which should be applied to each event must be done under this loop,
@@ -120,7 +104,7 @@ def runtdm(infile_):
         for nak4jet_, ak4px_, ak4py_, ak4pz_, ak4e_, ak4csv, ak4flavor, ak4NHEF, ak4CHEF, ak4CEmEF, ak4PhEF, ek4EleEF, ak4MuEF, ak4JEC, trigName_,trigResult_, nele_, elepx_, elepy_, elepz_, elee_, elelooseid_, eletightid_, nmu_, mupx_, mupy_, mupz_, mue_, mutightid_, muChHadIso_, muNeHadIso_, muGamIso_, muPUPt_, muCharge_, met_, metphi_, run, lumi, event, nTau_, tau_px_, tau_py_, tau_pz_, tau_e_, tau_dm_, tau_isLoose_ in zip(df.THINnJet, df.THINjetPx, df.THINjetPy, df.THINjetPz, df.THINjetEnergy, df.THINjetCISVV2, df.THINjetHadronFlavor, df.THINjetNHadEF, df.THINjetCHadEF, df.THINjetCEmEF, df.THINjetPhoEF, df.THINjetEleEF, df.THINjetMuoEF, df.THINjetCorrUncUp, df.hlt_trigName, df.hlt_trigResult, df.nEle, df.elePx, df.elePy, df.elePz, df.eleEnergy, df.eleIsPassLoose, df.eleIsPassTight, df.nMu, df.muPx, df.muPy, df.muPz, df.muEnergy, df.isTightMuon, df.muChHadIso, df.muNeHadIso, df.muGamIso, df.muPUPt, df.muCharge, df.pfMetCorrPt, df.pfMetCorrPhi, df.runId, df.lumiSection, df.eventId, df.HPSTau_n,df.HPSTau_Px,df.HPSTau_Py,df.HPSTau_Pz,df.HPSTau_Energy, df.disc_decayModeFinding, df.disc_byLooseIsolationMVA3oldDMwLT):
 
             print "ievent = ", ieve
-
+            if ieve > 58: break
             ieve = ieve + 1
             if debug_:
                 print nak4jet_, ak4px_, ak4py_, ak4pz_, ak4e_
@@ -136,7 +120,6 @@ def runtdm(infile_):
             ''' This small block compute the pt of the jet and add them back
             into the original dataframe as a next step for further usage. '''
             ak4pt = [getPt(ak4px_[ij], ak4py_[ij]) for ij in range(nak4jet_)]
-            jetptseries.append(ak4pt)
 
             ''' Jet Loose ID is already applied in the preselection  '''
 
@@ -145,26 +128,19 @@ def runtdm(infile_):
                       for ij in range(nak4jet_)]
             ak4phi = [getPhi(ak4px_[ij], ak4py_[ij]) for ij in range(nak4jet_)]
 
-            jetetaseries.append(ak4eta)
-            jetphiseries.append(ak4phi)
-
             ''' pT>30 GeV, |eta|<4.5 is already applied in the tuples '''
 
             ''' jets with pt > 30 GeV '''
             ak4_pt30 = [(ak4pt[ij] > 30.) for ij in range(nak4jet_)]
-            jet_pt30.append(ak4_pt30)
 
             ''' jets with pt > 50 GeV '''
             ak4_pt50 = [(ak4pt[ij] > 50.) for ij in range(nak4jet_)]
-            jet_pt50.append(ak4_pt50)
 
             ''' jet |eta| < 4.5  '''
             ak4_eta4p5 = [(abs(ak4eta[ij]) < 4.5) for ij in range(nak4jet_)]
-            jet_eta4p5.append(ak4_eta4p5)
 
             ''' jet |eta| < 2.4 '''
             ak4_eta2p4 = [(abs(ak4eta[ij]) < 2.4) for ij in range(nak4jet_)]
-            jet_eta2p4.append(ak4_eta2p4)
 
             ''' jet tightLeptonVeto ID to reject fake jets coming from the leptons, Veto ID should be applied only for jets within the detector abs(eta) < 2.4
 
@@ -175,22 +151,13 @@ def runtdm(infile_):
             ak4_IDtightVeto = [((ak4NHEF[ij] < 0.90) and (ak4PhEF[ij] < 0.90) and (ak4MuEF[ij] < 0.8) and (ak4CEmEF[ij] < 0.90) and abs(ak4eta[ij]) < 2.4)
                                or ((ak4NHEF[ij] < 0.90) and (ak4PhEF[ij] < 0.90) and (ak4MuEF[ij] < 0.8) and abs(ak4eta[ij]) < 2.7 and abs(ak4eta[ij]) > 2.4) if (abs(ak4eta[ij]) < 2.7)
                                else True for ij in range(nak4jet_)]
-            jet_IDtightVeto.append(ak4_IDtightVeto)
 
             if debug_:
                 print "ak4_IDtightVeto", ak4_IDtightVeto
 
             ''' njets passing jet pt > 30 and eta < 4.5 and Loose Jet ID '''
-            jet_NJpt30.append(ak4_pt30.count(True))
-
-            jet_NJpt30_Eta4p5.append(
-                len([ij for ij in range(nak4jet_) if (ak4_eta4p5[ij] and ak4_pt50[ij])]))
 
             ak4_csvmedium = [(ak4csv[ij] > 0.8484) for ij in range(nak4jet_)]
-            jet_csvmedium.append(ak4_csvmedium)
-
-            jet_N_bmedium_eta2p4_pt30.append(len([ij for ij in range(nak4jet_) if (
-                (ak4_eta2p4[ij]) and (ak4_pt30[ij]) and (ak4_csvmedium[ij]))]))
 
             '''
 
@@ -274,7 +241,7 @@ def runtdm(infile_):
 
 
             ''' MET SELECTION '''
-            met_250_.append(met_ > 250.0)
+            #met_250_.append(met_ > 250.0)
 
             ''' MT Calculation for electrons '''
             mt_ele = [getMT(elept[ie], met_, elephi[ie], metphi_) for ie in range(nele_)]
@@ -373,64 +340,91 @@ def runtdm(infile_):
             for ijet in range(len(ak4_pt30_eta4p5_IDL)):
                 pass_ijet_iele_ = []
                 for iele in range(len(ele_pt10_eta2p5_vetoID)):
-                    pass_ijet_iele_.append(ak4_pt30_eta4p5_IDL[ijet] & ele_pt10_eta2p5_vetoID[iele] & (
+                    pass_ijet_iele_.append(ak4_pt30_eta4p5_IDL[ijet] and ele_pt10_eta2p5_vetoID[iele] and (
                         Delta_R(ak4eta[ijet], eleeta[iele], ak4phi[ijet], elephi[iele]) > 0.4))
-                print "pass_ijet_iele_ = ", pass_ijet_iele_
+                if debug_: print "pass_ijet_iele_ = ", pass_ijet_iele_
                 # if the number of true is equal to length of vector then it is ok to keep this jet, otherwise this is not cleaned
                 jetCleanAgainstEle.append(
                     len(WhereIsTrue(pass_ijet_iele_)) == len(pass_ijet_iele_))
-                print "jetCleanAgainstEle = ", jetCleanAgainstEle
+                if debug_: print "jetCleanAgainstEle = ", jetCleanAgainstEle
 
             jetCleanAgainstMu = []
             for ijet in range(len(ak4_pt30_eta4p5_IDL)):
                 pass_ijet_imu_ = []
                 for imu in range(len(mu_pt10_eta2p4_looseID)):
-                    pass_ijet_imu_.append(ak4_pt30_eta4p5_IDL[ijet] & mu_pt10_eta2p4_looseID[imu] & (
+                    pass_ijet_imu_.append(ak4_pt30_eta4p5_IDL[ijet] and mu_pt10_eta2p4_looseID[imu] and (
                         Delta_R(ak4eta[ijet], mueta[imu], ak4phi[ijet], muphi[imu]) > 0.4))
                 # if the number of true is equal to length of vector then it is ok to keep this jet, otherwise this is not cleaned
-                print "pass_ijet_imu_ = ", pass_ijet_imu_
+                if debug_:print "pass_ijet_imu_ = ", pass_ijet_imu_
                 jetCleanAgainstMu.append(
                     len(WhereIsTrue(pass_ijet_imu_)) == len(pass_ijet_imu_))
-                print "jetCleanAgainstMu = ", jetCleanAgainstMu
+                if debug_:print "jetCleanAgainstMu = ", jetCleanAgainstMu
             jetCleaned = logical_AND_List2(
                 jetCleanAgainstEle, jetCleanAgainstMu)
-            print "jetCleaned = ", jetCleaned
+            if debug_: print "jetCleaned = ", jetCleaned
 
-            print "nele, nmu = ", ele_pt10_eta2p5_vetoID, mu_pt10_eta2p4_looseID
+            if debug_:print "nele, nmu = ", ele_pt10_eta2p5_vetoID, mu_pt10_eta2p4_looseID
 
             pass_jet_index_cleaned = []
             pass_jet_index_cleaned = WhereIsTrue(jetCleaned, 3)
 
-            print "pass_jet_index_cleaned = ", pass_jet_index_cleaned
+            if debug_:print "pass_jet_index_cleaned = ", pass_jet_index_cleaned
 
             ak4_bjetM_eta2p4 = []
             if len(ak4_csvmedium) > 0:
                 ak4_bjetM_eta2p4 = logical_AND_List3(
                     ak4_csvmedium, ak4_eta2p4, jetCleaned)
             pass_bjetM_eta2p4_index = WhereIsTrue(ak4_bjetM_eta2p4, 1)
+            # j1idx   = -1; j2idx   = -1; j3idx   = -1
+            # ele1idx = -1; ele2idx = -1
+            # mu1idx  = -1; mu2idx  = -1
+            print 'reached here0.5'
+            if debug_: print len(pass_ele_index)
+            ele_vect = []
+            for iele in pass_ele_index:
+                ele_vect_temp=[]
+                ele_vect_temp.append(elept[iele])
+                ele_vect_temp.append(eleeta[iele])
+                ele_vect_temp.append(elephi[iele])
+                ele_vect_temp.append(mt_ele[iele])
+                ele_vect.append(ele_vect_temp)
 
-            j1idx   = -1; j2idx   = -1; j3idx   = -1
-            ele1idx = -1; ele2idx = -1
-            mu1idx  = -1; mu2idx  = -1
-            ele1idx = pass_ele_index[0]; ele2idx = pass_ele_index[1]
-            mu1idx = pass_mu_index[0]; mu2idx = pass_mu_index[1]
-            j1idx = pass_jet_index_cleaned[0]
-            j2idx = pass_jet_index_cleaned[1]
-            j3idx = pass_jet_index_cleaned[2]
+            mu_vect = []
+            for imu in pass_mu_index:
+                mu_vect_temp=[]
+                mu_vect_temp.append(mupt[imu])
+                mu_vect_temp.append(mueta[imu])
+                mu_vect_temp.append(muphi[imu])
+                mu_vect_temp.append(mt_mu[imu])
+                mu_vect.append(mu_vect_temp)
+
+            jet_vect = []
+            for ijet in pass_jet_index_cleaned:
+                jet_vect_temp=[]
+                jet_vect_temp.append(ak4pt[ijet])
+                jet_vect_temp.append(ak4eta[ijet])
+                jet_vect_temp.append(ak4phi[ijet])
+                jet_vect.append(jet_vect_temp)
+
             print 'reached here1'
-            df_out = df_out.append({'run':run, 'lumi':lumi, 'event':event,
-                                    'MET': met_, 'MT_ele': mt_ele[pass_ele_index[0]],'MT_mu': mt_mu[pass_mu_index[0]], 'Njets_PassID': len(pass_jet_index_cleaned), 'Nbjets_PassID':len(pass_bjetM_eta2p4_index),
-                                    'Ele1Pt':elept[ele1idx], 'Ele1Eta':eleeta[ele1idx], 'Ele1Phi':elephi[ele1idx],'Ele2Pt':elept[ele2idx], 'Ele2Eta':eleeta[ele2idx], 'Ele2Phi':elephi[ele2idx],'Mu1Pt':mupt[mu1idx], 'Mu1Eta':mueta[mu1idx],
-                                    'Mu1Phi':muphi[mu1idx],'Mu2Pt':mupt[mu2idx], 'Mu2Eta':mueta[mu2idx],'Mu2Phi':muphi[mu2idx],'nTau': len(pass_tau_index), 'Jet1Pt':ak4pt[j1idx], 'Jet1Eta':ak4eta[j1idx], 'Jet1Phi':ak4phi[j1idx],
-                                    'Jet2Pt':ak4pt[j2idx],'Jet2Eta':ak4eta[j2idx], 'Jet2Phi':ak4phi[j2idx], 'Jet3Pt':ak4pt[j3idx],'Jet3Eta':ak4eta[j3idx],'Jet3Phi':ak4phi[j3idx],
-                                    'Jet1Idx':j1idx, 'Jet2Idx':j2idx,'Jet3Idx':j3idx }, ignore_index=True)
+            # df_out = df_out.append({'run':run, 'lumi':lumi, 'event':event,
+            #                         'MET': met_, 'MT_ele': mt_ele[pass_ele_index[0]],'MT_mu': mt_mu[pass_mu_index[0]], 'Njets_PassID': len(pass_jet_index_cleaned), 'Nbjets_PassID':len(pass_bjetM_eta2p4_index),
+            #                         'Ele1Pt':   [ele1idx], 'Ele1Eta':eleeta[ele1idx], 'Ele1Phi':elephi[ele1idx],'Ele2Pt':elept[ele2idx], 'Ele2Eta':eleeta[ele2idx], 'Ele2Phi':elephi[ele2idx],'Mu1Pt':mupt[mu1idx], 'Mu1Eta':mueta[mu1idx],
+            #                         'Mu1Phi':muphi[mu1idx],'Mu2Pt':mupt[mu2idx], 'Mu2Eta':mueta[mu2idx],'Mu2Phi':muphi[mu2idx],'nTau': len(pass_tau_index), 'Jet1Pt':ak4pt[j1idx], 'Jet1Eta':ak4eta[j1idx], 'Jet1Phi':ak4phi[j1idx],
+            #                         'Jet2Pt':ak4pt[j2idx],'Jet2Eta':ak4eta[j2idx], 'Jet2Phi':ak4phi[j2idx], 'Jet3Pt':ak4pt[j3idx],'Jet3Eta':ak4eta[j3idx],'Jet3Phi':ak4phi[j3idx],
+            #                         'Jet1Idx':j1idx, 'Jet2Idx':j2idx,'Jet3Idx':j3idx,'ele_vect':ele_vect }, ignore_index=True)
+            if len(pass_jet_index_cleaned) > 0 :
+                df_out = df_out.append({'run':run, 'lumi':lumi, 'event':event,'MET': met_, 'Njets_PassID': len(pass_jet_index_cleaned), 'Nbjets_PassID':len(pass_bjetM_eta2p4_index),'mu_vect': mu_vect,'jet_vect':jet_vect,'ele_vect':ele_vect }, ignore_index=True)
+            #print df_out
             print 'reached here2'
-            if debug_:
-                print "object info", run, lumi, event, eleidx, elept[eleidx], eleeta[eleidx], elephi[eleidx], j1idx, ak4pt[j1idx], ak4eta[j1idx], ak4phi[j1idx], j2idx, ak4pt[j2idx], ak4eta[j2idx], ak4phi[j2idx], j3idx, ak4pt[
-                    j3idx], ak4eta[j3idx], ak4phi[j3idx], met_, mt_ele[pass_ele_index[0]], [len(pass_ele_index) == 1, nmu_ == 0, met_ > 250.0, len(pass_jet_index) >= 3, len(pass_bjetM_eta2p4_index) == 0, mt_ele[pass_ele_index[0]] < 160.]
+            print '\n\n'
+            # if debug_:
+            #     print "object info", run, lumi, event, eleidx, elept[eleidx], eleeta[eleidx], elephi[eleidx], j1idx, ak4pt[j1idx], ak4eta[j1idx], ak4phi[j1idx], j2idx, ak4pt[j2idx], ak4eta[j2idx], ak4phi[j2idx], j3idx, ak4pt[
+            #         j3idx], ak4eta[j3idx], ak4phi[j3idx], met_, mt_ele[pass_ele_index[0]], [len(pass_ele_index) == 1, nmu_ == 0, met_ > 250.0, len(pass_jet_index) >= 3, len(pass_bjetM_eta2p4_index) == 0, mt_ele[pass_ele_index[0]] < 160.]
 
-        df_all = concat([df_all, df])
+#        df_all = concat([df_all, df])
 
+    print df_out
     if debug_:
         print df_out
 
@@ -453,4 +447,5 @@ if __name__ == '__main__':
         pool.close()
     except Exception as e:
         print traceback.format_exc()
+        print e
         pass
