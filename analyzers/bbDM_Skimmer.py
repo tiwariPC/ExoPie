@@ -28,7 +28,7 @@ print "starting clock"
 start = time.clock()
 
 
-debug_ = False
+debug_ = True
 
 usage = "analyzer for t+DM (debugging) "
 parser = argparse.ArgumentParser(description=usage)
@@ -378,7 +378,6 @@ def runtdm(infile_):
             # j1idx   = -1; j2idx   = -1; j3idx   = -1
             # ele1idx = -1; ele2idx = -1
             # mu1idx  = -1; mu2idx  = -1
-            print 'reached here0.5'
             if debug_: print len(pass_ele_index)
             ele_vect = []
             for iele in pass_ele_index:
@@ -388,6 +387,7 @@ def runtdm(infile_):
                 ele_vect_temp.append(elephi[iele])
                 ele_vect_temp.append(mt_ele[iele])
                 ele_vect.append(ele_vect_temp)
+            ele_vect=numpy.array(ele_vect,numpy.float32)
 
             mu_vect = []
             for imu in pass_mu_index:
@@ -397,6 +397,7 @@ def runtdm(infile_):
                 mu_vect_temp.append(muphi[imu])
                 mu_vect_temp.append(mt_mu[imu])
                 mu_vect.append(mu_vect_temp)
+            mu_vect = numpy.array(mu_vect,numpy.float32)
 
             jet_vect = []
             for ijet in pass_jet_index_cleaned:
@@ -405,8 +406,8 @@ def runtdm(infile_):
                 jet_vect_temp.append(ak4eta[ijet])
                 jet_vect_temp.append(ak4phi[ijet])
                 jet_vect.append(jet_vect_temp)
-
-            print 'reached here1'
+            jet_vect = numpy.array(jet_vect,numpy.float32)
+            if debug_: print jet_vect ,'\n',mu_vect,'\n',ele_vect
             # df_out = df_out.append({'run':run, 'lumi':lumi, 'event':event,
             #                         'MET': met_, 'MT_ele': mt_ele[pass_ele_index[0]],'MT_mu': mt_mu[pass_mu_index[0]], 'Njets_PassID': len(pass_jet_index_cleaned), 'Nbjets_PassID':len(pass_bjetM_eta2p4_index),
             #                         'Ele1Pt':   [ele1idx], 'Ele1Eta':eleeta[ele1idx], 'Ele1Phi':elephi[ele1idx],'Ele2Pt':elept[ele2idx], 'Ele2Eta':eleeta[ele2idx], 'Ele2Phi':elephi[ele2idx],'Mu1Pt':mupt[mu1idx], 'Mu1Eta':mueta[mu1idx],
@@ -416,8 +417,6 @@ def runtdm(infile_):
             if len(pass_jet_index_cleaned) > 0 :
                 df_out = df_out.append({'run':run, 'lumi':lumi, 'event':event,'MET': met_, 'Njets_PassID': len(pass_jet_index_cleaned), 'Nbjets_PassID':len(pass_bjetM_eta2p4_index),'mu_vect': mu_vect,'jet_vect':jet_vect,'ele_vect':ele_vect }, ignore_index=True)
             #print df_out
-            print 'reached here2'
-            print '\n\n'
             # if debug_:
             #     print "object info", run, lumi, event, eleidx, elept[eleidx], eleeta[eleidx], elephi[eleidx], j1idx, ak4pt[j1idx], ak4eta[j1idx], ak4phi[j1idx], j2idx, ak4pt[j2idx], ak4eta[j2idx], ak4phi[j2idx], j3idx, ak4pt[
             #         j3idx], ak4eta[j3idx], ak4phi[j3idx], met_, mt_ele[pass_ele_index[0]], [len(pass_ele_index) == 1, nmu_ == 0, met_ > 250.0, len(pass_jet_index) >= 3, len(pass_bjetM_eta2p4_index) == 0, mt_ele[pass_ele_index[0]] < 160.]
@@ -430,6 +429,7 @@ def runtdm(infile_):
 
     outputfilename = args.outputfile
     df_out.to_root(outputfilename, key='bb_dm')
+    df_out.to_csv (r'export_dataframe.csv', index = None, header=True)
 
     # df_out_wmunu_cr.to_root(outputfilename, key='t_dm_wmunucr', mode='a')
 
