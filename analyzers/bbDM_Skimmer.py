@@ -80,7 +80,7 @@ def runtdm(infile_):
 
     # dataframe for output
     #df_out = DataFrame(columns=['run', 'lumi', 'event', 'MET', 'MT_ele','MT_mu', 'Njets_PassID', 'Nbjets_PassID', 'Ele1Pt', 'Ele1Eta', 'Ele1Phi','Ele2Pt', 'Ele2Eta', 'Ele2Phi', 'Mu1Pt', 'Mu1Eta', 'Mu1Phi','Mu2Pt', 'Mu2Eta', 'Mu2Phi','nTau','Jet1Pt','Jet1Eta', 'Jet1Phi', 'Jet2Pt', 'Jet2Eta', 'Jet2Phi', 'Jet3Pt', 'Jet3Eta', 'Jet3Phi', 'Jet1Idx', 'Jet2Idx', 'Jet3Idx','ele_vect'])
-    df_out = DataFrame(columns=['run', 'lumi', 'event', 'MET', 'Njets_PassID', 'Nbjets_PassID', 'mu_vect','jet_vect','ele_vect'])
+    df_out = DataFrame(columns=['run', 'lumi', 'event', 'MET', 'Njets_PassID', 'Nbjets_PassID','ele_vect'])
 
     jetvariables = ['THINnJet', 'THINjetPx', 'THINjetPy', 'THINjetPz', 'THINjetEnergy', 'THINjetCISVV2', 'THINjetHadronFlavor', 'THINjetNHadEF', 'THINjetCHadEF', 'THINjetCEmEF', 'THINjetPhoEF', 'THINjetEleEF', 'THINjetMuoEF', 'THINjetCorrUncUp', 'runId', 'lumiSection', 'eventId', 'pfMetCorrPt', 'pfMetCorrPhi', 'pfMetCorrUnc', 'isData','hlt_trigName','hlt_trigResult', 'nEle', 'elePx', 'elePy', 'elePz', 'eleEnergy', 'eleIsPassLoose', 'eleIsPassTight', 'nMu', 'muPx', 'muPy', 'muPz', 'muEnergy', 'isTightMuon','muChHadIso', 'muNeHadIso', 'muGamIso', 'muPUPt', 'muCharge', 'HPSTau_n','HPSTau_Px','HPSTau_Py','HPSTau_Pz','HPSTau_Energy','disc_decayModeFinding','disc_byLooseIsolationMVA3oldDMwLT']
 
@@ -379,35 +379,26 @@ def runtdm(infile_):
             # ele1idx = -1; ele2idx = -1
             # mu1idx  = -1; mu2idx  = -1
             if debug_: print len(pass_ele_index)
-            ele_vect = []
+            ele_pt = [];ele_eta = [];ele_phi = []
             for iele in pass_ele_index:
-                ele_vect_temp=[]
-                ele_vect_temp.append(elept[iele])
-                ele_vect_temp.append(eleeta[iele])
-                ele_vect_temp.append(elephi[iele])
-                ele_vect_temp.append(mt_ele[iele])
-                ele_vect.append(ele_vect_temp)
-            ele_vect=numpy.array(ele_vect,numpy.float32)
+                ele_pt.append(elept[iele])
+                ele_eta.append(eleeta[iele])
+                ele_phi.append(elephi[iele])
 
-            mu_vect = []
+            mu_pt = []; mu_eta = []; mu_phi = []
             for imu in pass_mu_index:
-                mu_vect_temp=[]
-                mu_vect_temp.append(mupt[imu])
-                mu_vect_temp.append(mueta[imu])
-                mu_vect_temp.append(muphi[imu])
-                mu_vect_temp.append(mt_mu[imu])
-                mu_vect.append(mu_vect_temp)
-            mu_vect = numpy.array(mu_vect,numpy.float32)
+                mu_pt.append(mupt[imu])
+                mu_eta.append(mueta[imu])
+                mu_phi.append(muphi[imu])
 
-            jet_vect = []
+
+            jet_pt = []; jet_eta = []; jet_phi = []
             for ijet in pass_jet_index_cleaned:
-                jet_vect_temp=[]
-                jet_vect_temp.append(ak4pt[ijet])
-                jet_vect_temp.append(ak4eta[ijet])
-                jet_vect_temp.append(ak4phi[ijet])
-                jet_vect.append(jet_vect_temp)
-            jet_vect = numpy.array(jet_vect,numpy.float32)
-            if debug_: print jet_vect ,'\n',mu_vect,'\n',ele_vect
+                jet_pt.append(ak4pt[ijet])
+                jet_eta.append(ak4eta[ijet])
+                jet_phi.append(ak4phi[ijet])
+
+            if debug_: print jet_pt ,'\n',mu_pt,'\n',ele_pt
             # df_out = df_out.append({'run':run, 'lumi':lumi, 'event':event,
             #                         'MET': met_, 'MT_ele': mt_ele[pass_ele_index[0]],'MT_mu': mt_mu[pass_mu_index[0]], 'Njets_PassID': len(pass_jet_index_cleaned), 'Nbjets_PassID':len(pass_bjetM_eta2p4_index),
             #                         'Ele1Pt':   [ele1idx], 'Ele1Eta':eleeta[ele1idx], 'Ele1Phi':elephi[ele1idx],'Ele2Pt':elept[ele2idx], 'Ele2Eta':eleeta[ele2idx], 'Ele2Phi':elephi[ele2idx],'Mu1Pt':mupt[mu1idx], 'Mu1Eta':mueta[mu1idx],
@@ -415,7 +406,7 @@ def runtdm(infile_):
             #                         'Jet2Pt':ak4pt[j2idx],'Jet2Eta':ak4eta[j2idx], 'Jet2Phi':ak4phi[j2idx], 'Jet3Pt':ak4pt[j3idx],'Jet3Eta':ak4eta[j3idx],'Jet3Phi':ak4phi[j3idx],
             #                         'Jet1Idx':j1idx, 'Jet2Idx':j2idx,'Jet3Idx':j3idx,'ele_vect':ele_vect }, ignore_index=True)
             if len(pass_jet_index_cleaned) > 0 :
-                df_out = df_out.append({'run':run, 'lumi':lumi, 'event':event,'MET': met_, 'Njets_PassID': len(pass_jet_index_cleaned), 'Nbjets_PassID':len(pass_bjetM_eta2p4_index),'mu_vect': mu_vect,'jet_vect':jet_vect,'ele_vect':ele_vect }, ignore_index=True)
+                df_out = df_out.append({'run':run, 'lumi':lumi, 'event':event,'MET': met_, 'Njets_PassID': len(pass_jet_index_cleaned), 'Nbjets_PassID':len(pass_bjetM_eta2p4_index),'ele_vect':ele_pt }, ignore_index=True)
             #print df_out
             # if debug_:
             #     print "object info", run, lumi, event, eleidx, elept[eleidx], eleeta[eleidx], elephi[eleidx], j1idx, ak4pt[j1idx], ak4eta[j1idx], ak4phi[j1idx], j2idx, ak4pt[j2idx], ak4eta[j2idx], ak4phi[j2idx], j3idx, ak4pt[
