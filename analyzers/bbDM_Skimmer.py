@@ -80,7 +80,7 @@ def runtdm(infile_):
 
     # dataframe for output
     #df_out = DataFrame(columns=['run', 'lumi', 'event', 'MET', 'MT_ele','MT_mu', 'Njets_PassID', 'Nbjets_PassID', 'Ele1Pt', 'Ele1Eta', 'Ele1Phi','Ele2Pt', 'Ele2Eta', 'Ele2Phi', 'Mu1Pt', 'Mu1Eta', 'Mu1Phi','Mu2Pt', 'Mu2Eta', 'Mu2Phi','nTau','Jet1Pt','Jet1Eta', 'Jet1Phi', 'Jet2Pt', 'Jet2Eta', 'Jet2Phi', 'Jet3Pt', 'Jet3Eta', 'Jet3Phi', 'Jet1Idx', 'Jet2Idx', 'Jet3Idx','ele_vect'])
-    df_out = DataFrame(columns=['run', 'lumi', 'event', 'MET', 'Njets_PassID', 'Nbjets_PassID','ele_vect'])
+    df_out = DataFrame(columns=['run', 'lumi', 'event', 'MET', 'Njets_PassID', 'Nbjets_PassID', 'nele', 'ele_pt'])
 
     jetvariables = ['THINnJet', 'THINjetPx', 'THINjetPy', 'THINjetPz', 'THINjetEnergy', 'THINjetCISVV2', 'THINjetHadronFlavor', 'THINjetNHadEF', 'THINjetCHadEF', 'THINjetCEmEF', 'THINjetPhoEF', 'THINjetEleEF', 'THINjetMuoEF', 'THINjetCorrUncUp', 'runId', 'lumiSection', 'eventId', 'pfMetCorrPt', 'pfMetCorrPhi', 'pfMetCorrUnc', 'isData','hlt_trigName','hlt_trigResult', 'nEle', 'elePx', 'elePy', 'elePz', 'eleEnergy', 'eleIsPassLoose', 'eleIsPassTight', 'nMu', 'muPx', 'muPy', 'muPz', 'muEnergy', 'isTightMuon','muChHadIso', 'muNeHadIso', 'muGamIso', 'muPUPt', 'muCharge', 'HPSTau_n','HPSTau_Px','HPSTau_Py','HPSTau_Pz','HPSTau_Energy','disc_decayModeFinding','disc_byLooseIsolationMVA3oldDMwLT']
 
@@ -406,7 +406,7 @@ def runtdm(infile_):
             #                         'Jet2Pt':ak4pt[j2idx],'Jet2Eta':ak4eta[j2idx], 'Jet2Phi':ak4phi[j2idx], 'Jet3Pt':ak4pt[j3idx],'Jet3Eta':ak4eta[j3idx],'Jet3Phi':ak4phi[j3idx],
             #                         'Jet1Idx':j1idx, 'Jet2Idx':j2idx,'Jet3Idx':j3idx,'ele_vect':ele_vect }, ignore_index=True)
             if len(pass_jet_index_cleaned) > 0 :
-                df_out = df_out.append({'run':run, 'lumi':lumi, 'event':event,'MET': met_, 'Njets_PassID': len(pass_jet_index_cleaned), 'Nbjets_PassID':len(pass_bjetM_eta2p4_index),'ele_vect':ele_pt }, ignore_index=True)
+                df_out = df_out.append({'run':run, 'lumi':lumi, 'event':event,'MET': met_, 'Njets_PassID': len(pass_jet_index_cleaned), 'Nbjets_PassID':len(pass_bjetM_eta2p4_index),'nele':nele_,'ele_pt':ele_pt}, ignore_index=True)
             #print df_out
             # if debug_:
             #     print "object info", run, lumi, event, eleidx, elept[eleidx], eleeta[eleidx], elephi[eleidx], j1idx, ak4pt[j1idx], ak4eta[j1idx], ak4phi[j1idx], j2idx, ak4pt[j2idx], ak4eta[j2idx], ak4phi[j2idx], j3idx, ak4pt[
