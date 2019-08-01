@@ -19,42 +19,36 @@ import multiprocessing as mp
 from multiprocessing import Process
 import multiprocessing as mp
 
-ROOT.gROOT.LoadMacro("Loader.h+")
-
 outfilename= 'SkimmedTree.root'
 PUPPI = True
 CA15  = False
-usage = "usage: %prog [options] arg1 arg2"
-parser = optparse.OptionParser(usage)
+usage = "analyzer for t+DM (debugging) "
+parser = argparse.ArgumentParser(description=usage)
+parser.add_argument("-i", "--inputfile",  dest="inputfile")
+parser.add_argument("-o", "--outputfile",
+                    dest="outputfile", default="out.root")
+parser.add_argument("-D", "--outputdir", dest="outputdir")
+parser.add_argument("-F", "--farmout", action="store_true",  dest="farmout")
+args = parser.parse_args()
 
-parser.add_option("-i", "--inputfile",  dest="inputfile")
-parser.add_option("-F", "--farmout", action="store_true",  dest="farmout")
+infile = args.inputfile
+print 'outfile= ', args.outputfile
 
-(options, args) = parser.parse_args()
-
-if options.farmout==None:
-    isfarmout = False
-else:
-    isfarmout = options.farmout
-inputfilename = options.inputfile
-
-skimmedTree = TChain("tree/treeMaker")
-
-if isfarmout:
-    infile = open(inputfilename)
-    failcount=0
-    for ifile in infile:
-        try:
-            f_tmp = TFile.Open(ifile.rstrip(),'READ')
-            if f_tmp.IsZombie():            # or fileIsCorr(ifile.rstrip()):
-                failcount += 1
-                continue
-            skimmedTree.Add(ifile.rstrip())
-        except:
-            failcount += 1
-    if failcount>0: print "Could not read %d files. Skipping them." %failcount
-if not isfarmout:
-    skimmedTree.Add(inputfilename)
+# if isfarmout:
+#     infile = open(inputfilename)
+#     failcount=0
+#     for ifile in infile:
+#         try:
+#             f_tmp = TFile.Open(ifile.rstrip(),'READ')
+#             if f_tmp.IsZombie():            # or fileIsCorr(ifile.rstrip()):
+#                 failcount += 1
+#                 continue
+#             skimmedTree.Add(ifile.rstrip())
+#         except:
+#             failcount += 1
+#     if failcount>0: print "Could not read %d files. Skipping them." %failcount
+# if not isfarmout:
+#     skimmedTree.Add(inputfilename)
 
 def arctan(x,y):
     corr=0
@@ -73,6 +67,7 @@ def getPT_skim(P4):
     return P4.Pt()
 
 def runbbdm(infile_):
+    outputfilename = args.outputfile
 #    NEntries = 1000
     h_total = TH1F('h_total','h_total',2,0,2)
     h_total_mcweight = TH1F('h_total_mcweight','h_total_mcweight',2,0,2)
