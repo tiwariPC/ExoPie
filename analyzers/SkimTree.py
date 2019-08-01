@@ -1,0 +1,836 @@
+#!/usr/bin/env python
+from ROOT import TFile, TTree, TH1F, TH1D, TH1, TCanvas, TChain,TGraphAsymmErrors, TMath, TH2D, TLorentzVector, AddressOf, gROOT, TNamed
+import ROOT as ROOT
+import os
+import sys, optparse
+from array import array
+import math
+import numpy as numpy
+import pandas
+from root_pandas import read_root
+from pandas import  DataFrame, concat
+from pandas import Series
+
+# snippet from Deepak
+from multiprocessing import Process
+import multiprocessing as mp
+
+# snippet from Deepak
+from multiprocessing import Process
+import multiprocessing as mp
+
+ROOT.gROOT.LoadMacro("Loader.h+")
+
+outfilename= 'SkimmedTree.root'
+PUPPI = True
+CA15  = False
+usage = "usage: %prog [options] arg1 arg2"
+parser = optparse.OptionParser(usage)
+
+parser.add_option("-i", "--inputfile",  dest="inputfile")
+parser.add_option("-F", "--farmout", action="store_true",  dest="farmout")
+
+(options, args) = parser.parse_args()
+
+if options.farmout==None:
+    isfarmout = False
+else:
+    isfarmout = options.farmout
+inputfilename = options.inputfile
+
+skimmedTree = TChain("tree/treeMaker")
+
+if isfarmout:
+    infile = open(inputfilename)
+    failcount=0
+    for ifile in infile:
+        try:
+            f_tmp = TFile.Open(ifile.rstrip(),'READ')
+            if f_tmp.IsZombie():            # or fileIsCorr(ifile.rstrip()):
+                failcount += 1
+                continue
+            skimmedTree.Add(ifile.rstrip())
+        except:
+            failcount += 1
+    if failcount>0: print "Could not read %d files. Skipping them." %failcount
+if not isfarmout:
+    skimmedTree.Add(inputfilename)
+
+def arctan(x,y):
+    corr=0
+    if (x>0 and y>=0) or (x>0 and y<0):
+        corr=0
+    elif x<0 and y>=0:
+        corr=math.pi
+    elif x<0 and y<0:
+        corr=-math.pi
+    if x!=0.:
+        return math.atan(y/x)+corr
+    else:
+        return math.pi/2+corr
+
+def getPT(P4):
+    return P4.Pt()
+
+def AnalyzeDataSet():
+    CSVMWP=0.8484
+    DCSVMWP=0.6324
+    NEntries = skimmedTree.GetEntries()
+#    NEntries = 1000
+    h_total = TH1F('h_total','h_total',2,0,2)
+    h_total_mcweight = TH1F('h_total_mcweight','h_total_mcweight',2,0,2)
+
+    triglist=["HLT_PFMET170_BeamHaloCleaned_v","HLT_PFMET170_HBHE_BeamHaloCleaned_v","HLT_PFMET170_NotCleaned_v","HLT_PFMET170_NoiseCleaned_v","HLT_PFMET170_JetIdCleaned_v","HLT_PFMET170_HBHECleaned_v","HLT_PFMETNoMu90_PFMHTNoMu90_IDTight_v","HLT_PFMETNoMu100_PFMHTNoMu100_IDTight_v","HLT_PFMETNoMu110_PFMHTNoMu110_IDTight_v","HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_v","HLT_PFMET110_PFMHT110_IDTight_v","HLT_IsoMu24_v","HLT_IsoTkMu24_v","HLT_IsoMu27_v","HLT_IsoTkMu27_v","HLT_Ele27_WPTight_Gsf_v","HLT_Ele105_CaloIdVT_GsfTrkIdT_v","HLT_Ele115_CaloIdVT_GsfTrkIdT_v","HLT_Ele32_WPTight_Gsf_v","HLT_IsoMu20_v","HLT_Ele27_eta2p1_WPTight_Gsf_v","HLT_Ele27_WPLoose_Gsf_v","HLT_Ele32_eta2p1_WPTight_Gsf_v","HLT_Photon165_HE10_v","HLT_Photon175_v","HLT_Ele105_CaloIdVT_GsfTrkIdT_v"]
+
+
+    outfile = TFile(outfilename,'RECREATE')
+
+    outTree = TTree( 'outTree', 'tree branches' )
+    if isfarmout:
+        samplepath = TNamed('samplepath', str(f_tmp).split('"')[1])
+    else:
+        samplepath = TNamed('samplepath', str(inputfilename))
+
+    st_runId                  = numpy.zeros(1, dtype=int)
+    st_lumiSection            = array( 'L', [ 0 ] )
+    st_eventId                = array( 'L', [ 0 ] )
+    st_pfMetCorrPt            = array( 'f', [ 0. ] )
+    st_pfMetCorrPhi           = array( 'f', [ 0. ] )
+    st_pfMetUncJetResUp       = ROOT.std.vector('float')()
+    st_pfMetUncJetResDown     = ROOT.std.vector('float')()
+    st_pfMetUncJetEnUp        = ROOT.std.vector('float')()
+    st_pfMetUncJetEnDown      = ROOT.std.vector('float')()
+    st_isData           = array( 'b', [ 0 ] )
+
+    for trigs in triglist:
+        exec("st_"+trigs+"  = array( 'b', [ 0 ] )")
+
+    maxn = 10
+
+    st_THINnJet                     = array( 'L', [ 0 ] ) #ROOT.std.vector('int')()
+    st_THINjetP4                    = ROOT.std.vector('TLorentzVector')()
+    st_THINjetPx                    = ROOT.std.vector('float')()
+    st_THINjetPy                    = ROOT.std.vector('float')()
+    st_THINjetPz                    = ROOT.std.vector('float')()
+    st_THINjetEnergy                = ROOT.std.vector('float')()
+    st_THINjetDeepCSV                = ROOT.std.vector('float')()
+    st_THINjetHadronFlavor          = ROOT.std.vector('int')()
+    st_THINjetNHadEF                = ROOT.std.vector('float')()
+    st_THINjetCHadEF                = ROOT.std.vector('float')()
+
+    st_THINjetCEmEF                 = ROOT.std.vector('float')()
+    st_THINjetPhoEF                 = ROOT.std.vector('float')()
+    st_THINjetEleEF                 = ROOT.std.vector('float')()
+    st_THINjetMuoEF                 = ROOT.std.vector('float')()
+    st_THINjetCorrUnc               = ROOT.std.vector('float')()
+
+
+    st_nEle                = array( 'L', [ 0 ] ) #ROOT.std.vector('int')()
+    st_eleP4               = ROOT.std.vector('TLorentzVector')()
+    st_elePx               = ROOT.std.vector('float')()
+    st_elePy               = ROOT.std.vector('float')()
+    st_elePz               = ROOT.std.vector('float')()
+    st_eleEnergy           = ROOT.std.vector('float')()
+    st_eleIsPassLoose      = ROOT.std.vector('bool')()
+    st_eleIsPassTight      = ROOT.std.vector('bool')()
+
+    st_nPho                = array( 'L', [ 0 ] ) #ROOT.std.vector('int')()
+    st_phoP4               = ROOT.std.vector('TLorentzVector')()
+    st_phoPx               = ROOT.std.vector('float')()
+    st_phoPy               = ROOT.std.vector('float')()
+    st_phoPz               = ROOT.std.vector('float')()
+    st_phoEnergy           = ROOT.std.vector('float')()
+    st_phoIsPassTight      = ROOT.std.vector('bool')()
+
+    st_nMu= array( 'L', [ 0 ] ) #ROOT.std.vector('int')()
+    st_muP4                = ROOT.std.vector('TLorentzVector')()
+    st_muPx                = ROOT.std.vector('float')()
+    st_muPy                = ROOT.std.vector('float')()
+    st_muPz                = ROOT.std.vector('float')()
+    st_muEnergy            = ROOT.std.vector('float')()
+    st_isTightMuon         = ROOT.std.vector('bool')()
+    st_muIso            = ROOT.std.vector('float')()
+
+
+    st_HPSTau_n= array( 'L', [ 0 ] ) #ROOT.std.vector('int')()
+    st_nTauTightElectron= array( 'L', [ 0 ] )
+    st_nTauTightMuon= array( 'L', [ 0 ] )
+    st_nTauTightEleMu= array( 'L', [ 0 ] )
+    st_nTauLooseEleMu= array( 'L', [ 0 ] )
+
+    mcweight = array( 'f', [ 0 ] )
+    st_pu_nTrueInt= array( 'f', [ 0 ] ) #ROOT.std.vector('std::vector<float>')()
+    st_pu_nPUVert= array( 'f', [ 0 ] )
+    st_THINjetNPV= array( 'f', [ 0 ] ) #ROOT.std.vector('std::vector<float>')()
+
+    st_nGenPar = array( 'L', [ 0 ] )
+    st_genParId = ROOT.std.vector('int')()
+    st_genMomParId = ROOT.std.vector('int')()
+    st_genParSt = ROOT.std.vector('int')()
+    st_genParP4 = ROOT.std.vector('TLorentzVector')()
+    st_genParPx = ROOT.std.vector('float')()
+    st_genParPy = ROOT.std.vector('float')()
+    st_genParPz = ROOT.std.vector('float')()
+    st_genParEnergy = ROOT.std.vector('float')()
+
+    WenuRecoil = array( 'f', [ 0. ] )
+    Wenumass = array( 'f', [ 0. ] )
+    WenuPhi = array( 'f', [ 0. ] )
+
+    WmunuRecoil = array( 'f', [ 0. ] )
+    Wmunumass = array( 'f', [ 0. ] )
+    WmunuPhi = array( 'f', [ 0. ] )
+
+    ZeeRecoil = array( 'f', [ 0. ] )
+    ZeeMass = array( 'f', [ 0. ] )
+    ZeePhi = array( 'f', [ 0. ] )
+
+    ZmumuRecoil = array( 'f', [ 0. ] )
+    ZmumuMass = array( 'f', [ 0. ] )
+    ZmumuPhi = array( 'f', [ 0. ] )
+
+    GammaRecoil = array('f',[0.])
+    GammaPhi = array( 'f', [ 0. ] )
+
+    outTree.Branch( 'st_runId', st_runId , 'st_runId/L')
+    outTree.Branch( 'st_lumiSection', st_lumiSection , 'st_lumiSection/L')
+    outTree.Branch( 'st_eventId',  st_eventId, 'st_eventId/L')
+    outTree.Branch( 'st_pfMetCorrPt', st_pfMetCorrPt , 'st_pfMetCorrPt/F')
+    outTree.Branch( 'st_pfMetCorrPhi', st_pfMetCorrPhi , 'st_pfMetCorrPhi/F')
+    outTree.Branch( 'st_pfMetUncJetResUp', st_pfMetUncJetResUp)
+    outTree.Branch( 'st_pfMetUncJetResDown', st_pfMetUncJetResDown)
+    outTree.Branch( 'st_pfMetUncJetEnUp', st_pfMetUncJetEnUp )
+    outTree.Branch( 'st_pfMetUncJetEnDown', st_pfMetUncJetEnDown)
+    outTree.Branch( 'st_isData', st_isData , 'st_isData/O')
+
+    for trigs in triglist:
+        exec("outTree.Branch( 'st_"+trigs+"', st_"+trigs+" , 'st_"+trigs+"/O')")
+
+
+    outTree.Branch( 'st_THINnJet',st_THINnJet, 'st_THINnJet/L' )
+    outTree.Branch( 'st_THINjetP4',st_THINjetP4 )
+    outTree.Branch( 'st_THINjetPx', st_THINjetPx  )
+    outTree.Branch( 'st_THINjetPy' , st_THINjetPy )
+    outTree.Branch( 'st_THINjetPz', st_THINjetPz )
+    outTree.Branch( 'st_THINjetEnergy', st_THINjetEnergy )
+    outTree.Branch( 'st_THINjetDeepCSV',st_THINjetDeepCSV )
+    outTree.Branch( 'st_THINjetHadronFlavor',st_THINjetHadronFlavor )
+    outTree.Branch( 'st_THINjetNHadEF',st_THINjetNHadEF )
+    outTree.Branch( 'st_THINjetCHadEF',st_THINjetCHadEF )
+
+    outTree.Branch( 'st_THINjetCEmEF',st_THINjetCEmEF )
+    outTree.Branch( 'st_THINjetPhoEF',st_THINjetPhoEF )
+    outTree.Branch( 'st_THINjetEleEF',st_THINjetEleEF )
+    outTree.Branch( 'st_THINjetMuoEF',st_THINjetMuoEF )
+    outTree.Branch('st_THINjetCorrUnc', st_THINjetCorrUnc)
+
+    outTree.Branch( 'st_nEle',st_nEle , 'st_nEle/L')
+    outTree.Branch( 'st_eleP4',st_eleP4 )
+    outTree.Branch( 'st_elePx', st_elePx  )
+    outTree.Branch( 'st_elePy' , st_elePy )
+    outTree.Branch( 'st_elePz', st_elePz )
+    outTree.Branch( 'st_eleEnergy', st_eleEnergy )
+    outTree.Branch( 'st_eleIsPassTight', st_eleIsPassTight)#, 'st_eleIsPassTight/O' )
+    outTree.Branch( 'st_eleIsPassLoose', st_eleIsPassLoose)#, 'st_eleIsPassLoose/O' )
+
+    outTree.Branch( 'st_nPho',st_nPho , 'st_nPho/L')
+    outTree.Branch( 'st_phoP4',st_phoP4 )
+    outTree.Branch( 'st_phoIsPassTight', st_phoIsPassTight)#, 'st_phoIsPassTight/O' )
+    outTree.Branch( 'st_phoPx', st_phoPx  )
+    outTree.Branch( 'st_phoPy' , st_phoPy )
+    outTree.Branch( 'st_phoPz', st_phoPz )
+    outTree.Branch( 'st_phoEnergy', st_phoEnergy )
+
+
+    outTree.Branch( 'st_nMu',st_nMu , 'st_nMu/L')
+    outTree.Branch( 'st_muP4',st_muP4 )
+    outTree.Branch( 'st_muPx', st_muPx)
+    outTree.Branch( 'st_muPy' , st_muPy)
+    outTree.Branch( 'st_muPz', st_muPz)
+    outTree.Branch( 'st_muEnergy', st_muEnergy)
+    outTree.Branch( 'st_isTightMuon', st_isTightMuon)#, 'st_isTightMuon/O' )
+    outTree.Branch( 'st_muIso', st_muIso)#, 'st_muIso/F')
+
+    outTree.Branch( 'st_HPSTau_n', st_HPSTau_n, 'st_HPSTau_n/L')
+    outTree.Branch( 'st_nTauTightElectron', st_nTauTightElectron, 'st_nTauTightElectron/L')
+    outTree.Branch( 'st_nTauTightMuon', st_nTauTightMuon, 'st_nTauTightMuon/L')
+    outTree.Branch( 'st_nTauTightEleMu', st_nTauTightEleMu, 'st_nTauTightEleMu/L')
+    outTree.Branch( 'st_nTauLooseEleMu', st_nTauLooseEleMu, 'st_nTauLooseEleMu/L')
+
+    outTree.Branch( 'st_pu_nTrueInt', st_pu_nTrueInt, 'st_pu_nTrueInt/F')
+    outTree.Branch( 'st_pu_nPUVert', st_pu_nPUVert, 'st_pu_nPUVert/F')
+    outTree.Branch( 'st_THINjetNPV', st_THINjetNPV, 'st_THINjetNPV/F')
+    outTree.Branch( 'mcweight', mcweight, 'mcweight/F')
+    outTree.Branch( 'st_nGenPar',st_nGenPar,'st_nGenPar/L' )  #nGenPar/I
+    outTree.Branch( 'st_genParId',st_genParId )  #vector<int>
+    outTree.Branch( 'st_genMomParId',st_genMomParId )
+    outTree.Branch( 'st_genParSt',st_genParSt )
+    outTree.Branch( 'st_genParP4', st_genParP4)
+    outTree.Branch( 'st_genParPx', st_genParPx  )
+    outTree.Branch( 'st_genParPy' , st_genParPy )
+    outTree.Branch( 'st_genParPz', st_genParPz )
+    outTree.Branch( 'st_genParEnergy', st_genParEnergy )
+
+    outTree.Branch( 'WenuRecoil', WenuRecoil, 'WenuRecoil/F')
+    outTree.Branch( 'Wenumass', Wenumass, 'Wenumass/F')
+    outTree.Branch( 'WenuPhi', WenuPhi, 'WenuPhi/F')
+
+    outTree.Branch( 'WmunuRecoil', WmunuRecoil, 'WmunuRecoil/F')
+    outTree.Branch( 'Wmunumass', Wmunumass, 'Wmunumass/F')
+    outTree.Branch( 'WmunuPhi', WmunuPhi, 'WmunuPhi/F')
+
+    outTree.Branch( 'ZeeRecoil', ZeeRecoil, 'ZeeRecoil/F')
+    outTree.Branch( 'ZeeMass', ZeeMass, 'ZeeMass/F')
+    outTree.Branch( 'ZeePhi', ZeePhi, 'ZeePhi/F')
+
+    outTree.Branch( 'ZmumuRecoil', ZmumuRecoil, 'ZmumuRecoil/F')
+    outTree.Branch( 'ZmumuMass', ZmumuMass, 'ZmumuMass/F')
+    outTree.Branch( 'ZmumuPhi', ZmumuPhi, 'ZmumuPhi/F')
+
+    outTree.Branch( 'TOPRecoil', TOPRecoil, 'TOPRecoil/F')
+    outTree.Branch( 'TOPPhi', TOPPhi, 'TOPPhi/F')
+
+    outTree.Branch( 'GammaRecoil', GammaRecoil, 'GammaRecoil/F')
+    outTree.Branch( 'GammaPhi', GammaPhi, 'GammaPhi/F')
+
+    #if len(sys.argv)>2:
+    #    NEntries=int(sys.argv[2])
+    #    print "WARNING: Running in TEST MODE"
+    jetvariables = ['runId','lumiSection','eventId','isData','mcWeight','pu_nTrueInt','pu_nPUVert','hlt_trigName','hlt_trigResult','hlt_filterName','hlt_filterResult','pfMetCorrPt','pfMetCorrPhi','pfMetCorrUnc','nEle','elePx','elePy','elePz','eleEnergy','eleIsPassLoose','eleIsPassTight','eleCharge','nPho','phoPx','phoPy','phoPz','phoEnergy','phoIsPassLoose','phoIsPassTight','nMu','muPx','muPy','muPz','muEnergy','isLooseMuon','isTightMuon','muChHadIso','muNeHadIso','muGamIso','muPUPt','muCharge','HPSTau_n','HPSTau_Px','HPSTau_Py','HPSTau_Pz','HPSTau_Energy','disc_decayModeFinding','disc_byLooseIsolationMVA3oldDMwLT','nGenPar','genParId','genMomParId','genParSt','genPx','genPy','genPz','genEnergy','THINnJet', 'THINjetPx', 'THINjetPy', 'THINjetPz', 'THINjetEnergy','THINjetPassIDLoose','THINjetDeepCSV_b', 'THINjetHadronFlavor', 'THINjetNHadEF', 'THINjetCHadEF', 'THINjetCEmEF', 'THINjetPhoEF', 'THINjetEleEF', 'THINjetMuoEF', 'THINjetCorrUncUp']
+    ieve = 0;icount = 0
+    for df in read_root(filename, columns=jetvariables, chunksize=125000):
+        for run,lumi,event,isData_,mcWeight_,pu_nTrueInt_,pu_nPUVert_,trigName_,trigResult_,filterName_,filterResult_,met_,metphi_,metUnc_,nEle_,elePx_,elePy_,elePz_,eleE_,eleLooseID_,eleTightID_,eleCharge_,nPho_,phoPx_,phoPy_,phoPz_,phoE_,phoLooseID_,phoTightID_,nMu_,muPx_,muPy_,muPz_,muE_,muLooseID_,muTightID_,muChHadIso_,muNeHadIso_,muGamIso_,muPUPt_,muCharge_,HPSTau_n_,tauPx_,tauPy_,tauPz_,tauE_,tau_dMF_,tau_isLoose_,nGenPar_,genParId_,genMomParId_,genParSt_,genPx_,genPy_,genPz_,genE_,nak4jet_,ak4px_,ak4py_,ak4pz_,ak4e_,ak4LooseID_,ak4deepcsv_,ak4flavor_,ak4NHEF_,ak4CHEF_,ak4CEmEF_,ak4PhEF_,ak4EleEF_,ak4MuEF_, ak4JEC_ in zip(df.runId,df.lumiSection,df.eventId,df.isData,df.mcWeight,df.pu_nTrueInt,df.pu_nPUVert,df.hlt_trigName,df.hlt_trigResult,df.hlt_filterName,df.hlt_filterResult,df.pfMetCorrPt,df.pfMetCorrPhi,df.pfMetCorrUnc,df.nEle,df.elePx,df.elePy,df.elePz,df.eleEnergy,df.eleIsPassLoose,df.eleIsPassTight,df.eleCharge,df.nPho,df.phoPx,df.phoPy,df.phoPz,df.phoEnergy,df.phoIsPassLoose,df.phoIsPassTight,df.nMu,df.muPx,df.muPy,df.muPz,df.muEnergy,df.isLooseMuon,df.isTightMuon,df.muChHadIso,df.muNeHadIso,df.muGamIso,df.muPUPt,df.muCharge,df.HPSTau_n,df.HPSTau_Px,df.HPSTau_Py,df.HPSTau_Pz,df.HPSTau_Energy,df.disc_decayModeFinding,df.disc_byLooseIsolationMVA3oldDMwLT,df.nGenPar,df.genParId,df.genMomParId,df.genParSt,df.genPx,df.genPy,df.genPz,df.genEnergy,df.THINnJet,df.THINjetPx,df.THINjetPy,df.THINjetPz,df.THINjetEnergy,df.THINjetPassIDLoose,df.THINjetDeepCSV_b,df.THINjetHadronFlavor,df.THINjetNHadEF,df.THINjetCHadEF,df.THINjetCEmEF,df.THINjetPhoEF,df.THINjetEleEF,df.THINjetMuoEF,df.THINjetCorrUncUp):
+        # -------------------------------------------------
+        # MC Weights
+        # -------------------------------------------------
+        mcweight[0] = 0.0
+        if isData==1:   mcweight[0] =  1.0
+        if not isData :
+            if mcWeight<0:  mcweight[0] = -1.0
+            if mcWeight>0:  mcweight[0] =  1.0
+        h_total.Fill(1.);
+        h_total_mcweight.Fill(1.,mcweight[0]);
+
+        # -------------------------------------------------
+        ## Trigger selection
+        # -------------------------------------------------
+
+        trigstatus=False
+        for itrig in range(len(triglist)):
+            exec(triglist[itrig]+" = CheckFilter(trigName, trigResult, " + "'" + triglist[itrig] + "')")
+            exec("if "+triglist[itrig]+": trigstatus=True")
+            exec("st_"+triglist[itrig]+"[0]="+triglist[itrig])
+        if not isData: trigstatus=True
+        if not trigstatus: continue
+
+        # ------------------------------------------------------
+        ## Filter selection
+        # ------------------------------------------------------
+        filterstatus = False
+        filter1 = False; filter2 = False;filter3 = False;filter4 = False; filter5 = False; filter6 = False; filter7=False
+        ifilter_=0
+        filter1 = CheckFilter(filterName, filterResult, 'Flag_HBHENoiseFilter')
+        filter2 = CheckFilter(filterName, filterResult, 'Flag_globalTightHalo2016Filter')
+        filter3 = CheckFilter(filterName, filterResult, 'Flag_eeBadScFilter')
+        filter4 = CheckFilter(filterName, filterResult, 'Flag_goodVertices')
+        filter5 = CheckFilter(filterName, filterResult, 'Flag_EcalDeadCellTriggerPrimitiveFilter')
+        fileer6 = CheckFilter(filterName, filterResult, 'Flag_BadPFMuonFilter')
+        filter7 = CheckFilter(filterName, filterResult, 'Flag_HBHENoiseIsoFilter')
+        if not isData:
+            filterstatus = True
+        if isData:
+            filterstatus =  filter1 & filter2 & filter3 & filter4 & filter5 & filter6 & filter7
+        if filterstatus == False: continue
+
+        # ------------------------------------------------------
+        ## PFMET Selection
+        # --------------------------------------------------------
+        pfmetstatus = ( pfMet > 200.0 )
+
+        thinjetpassindex=[]
+        nBjets=0
+        for ithinjet in range(nTHINJets):
+            j1 = thinjetP4[ithinjet]
+            if (j1.Pt() > 30.0)&(abs(j1.Eta())<4.5)&(bool(passThinJetLooseID[ithinjet])==True):
+                thinjetpassindex.append(ithinjet)
+                if thinJetDeepCSV[ithinjet] > DCSVMWP and abs(j1.Eta())<2.4 : nBjets += 1
+        len(thindCSVjetpassindex) < 1 : continue
+
+        # ----------------------------------------------------
+        ## Photon Veto
+        # ----------------------------------------------------
+        myPhos=[]
+        for ipho in range(nPho):
+            if (phoP4[ipho].Pt() > 15.) & (abs(phoP4[ipho].Eta()) <2.5) & (bool(phoIsPassLoose[ipho]) == True):
+                myPhos.append(ipho)
+
+        # -----------------------------------------------------
+        ## Electron Veto
+        # -----------------------------------------------------
+        myEles=[]
+        for iele in range(nEle):
+            no_crack_reg = (abs(eleP4[iele].Eta()) < 1.4442 & abs(eleP4[iele].Eta()) > 1.556)
+            if (eleP4[iele].Pt() > 10. ) & (abs(eleP4[iele].Eta()) <2.5) & (bool(eleIsPassLoose[iele]) == True) and no_crack_reg:
+                myEles.append(iele)
+
+        # -----------------------------------------------------
+        ## Muon Veto
+        # -----------------------------------------------------
+        myMuos = []
+        myMuonIso = {}
+        for imu in range(nMu):
+            if (muP4[imu].Pt()>10.) & (abs(muP4[imu].Eta()) < 2.4) & (bool(isLooseMuon[imu]) == True):
+                relPFIso = (muChHadIso[imu]+ max(0., muNeHadIso[imu] + muGamIso[imu] - 0.5*muPUPt[imu]))/muP4[imu].Pt()
+                if relPFIso<0.25 :
+                    myMuos.append(imu)
+                    myMuonIso[imu]=relPFIso
+
+        # -----------------------------------------------------
+        ## Tau Veto
+        # -----------------------------------------------------
+        myTaus=[]
+        nTausDRbased=0
+        myTausTightElectron=[]
+        myTausTightMuon=[]
+        myTausTightEleMu=[]
+        myTausLooseEleMu=[]
+        for itau in range(nTau):
+            if (tauP4[itau].Pt()>18.) & (abs(tauP4[itau].Eta())<2.3) & (bool(isDecayModeFinding[itau]) == True) & (bool(passLooseTauIso[itau]) == True):
+                foundTau=False
+                if disc_againstElectronLoose!=None and disc_againstMuonLoose!=None:
+                    foundTau = True
+                    if disc_againstElectronTight[itau] and disc_againstMuonLoose[itau]:
+                        myTausTightElectron.append(tauP4[itau])
+
+                    if disc_againstMuonTight[itau] and disc_againstElectronLoose[itau]:
+                        myTausTightMuon.append(tauP4[itau])
+
+                    if disc_againstMuonLoose[itau] and disc_againstElectronLoose[itau]:
+                        myTausLooseEleMu.append(tauP4[itau])
+
+                if disc_againstElectronLoose!=None and not foundTau:
+                    if disc_againstElectronTight[itau]:
+                        myTausTightElectron.append(tauP4[itau])
+                    if disc_againstElectronLoose[itau]:
+                        myTausLooseEleMu.append(tauP4[itau])
+
+                if disc_againstMuonLoose!=None and not foundTau:
+                    if disc_againstMuonTight[itau]:
+                        myTausTightMuon.append(tauP4[itau])
+                    if disc_againstMuonLoose[itau]:
+                        myTausLooseEleMu.append(tauP4[itau])
+                #---Fake tau cleaner----
+                isClean=True
+                for iele in myEles:
+                    lep_tau_dR=DeltaR(eleP4[iele],tauP4[itau])    # math.sqrt(  (  iele.Eta()-tauP4[itau].Eta() )**2  + (  DeltaPhi(iele.Phi(),tauP4[itau].Phi()) )**2 )
+                    if lep_tau_dR < 0.4:
+                        isClean=False
+                        break
+                for imu in myMuos:
+                    lep_tau_dR=DeltaR(muP4[imu],tauP4[itau])
+                    if lep_tau_dR < 0.4:
+                        isClean=False
+                        break
+                if not isClean:
+                    myTaus.append(itau)
+
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------
+        st_runId[0]             = long(run)
+        st_lumiSection[0]       = lumi
+        st_eventId[0]           = event
+        st_isData[0]            = isData
+        st_pfMetCorrPt[0]       = pfMet
+        st_pfMetCorrPhi[0]      = pfMetPhi
+
+        st_pfMetUncJetResUp.clear()
+        st_pfMetUncJetResDown.clear()
+
+        st_pfMetUncJetEnUp.clear()
+        st_pfMetUncJetEnDown.clear()
+
+        st_THINjetP4.clear()
+        st_THINjetPx.clear()
+        st_THINjetPy.clear()
+        st_THINjetPz.clear()
+        st_THINjetEnergy.clear()
+        st_THINjetDeepCSV.clear()
+        st_THINjetHadronFlavor.clear()
+        st_THINjetNHadEF.clear()
+        st_THINjetCHadEF.clear()
+
+        st_THINjetCEmEF.clear()
+        st_THINjetPhoEF.clear()
+        st_THINjetEleEF.clear()
+        st_THINjetMuoEF.clear()
+        st_THINjetCorrUnc.clear()
+
+        st_eleP4.clear()
+        st_elePx.clear()
+        st_elePy.clear()
+        st_elePz.clear()
+        st_eleEnergy.clear()
+        st_eleIsPassTight.clear()
+        st_eleIsPassLoose.clear()
+
+        st_muP4.clear()
+        st_muPx.clear()
+        st_muPy.clear()
+        st_muPz.clear()
+        st_muEnergy.clear()
+        st_isTightMuon.clear()
+        st_muIso.clear()
+
+        st_phoP4.clear()
+        st_phoPx.clear()
+        st_phoPy.clear()
+        st_phoPz.clear()
+        st_phoEnergy.clear()
+        st_phoIsPassTight.clear()
+
+        st_genParId.clear()
+        st_genMomParId.clear()
+        st_genParSt.clear()
+        st_genParP4.clear()
+        st_genParPx.clear()
+        st_genParPy.clear()
+        st_genParPz.clear()
+        st_genParEnergy.clear()
+
+
+        st_THINnJet[0] = len(thinjetpassindex)
+        for ithinjet in thinjetpassindex:
+            st_THINjetP4.push_back(thinjetP4[ithinjet])
+            st_THINjetPx.push_back(thinjetP4[ithinjet].Px())
+            st_THINjetPy.push_back(thinjetP4[ithinjet].Py())
+            st_THINjetPz.push_back(thinjetP4[ithinjet].Pz())
+            st_THINjetEnergy.push_back(thinjetP4[ithinjet].E())
+            st_THINjetDeepCSV.push_back(thinJetDeepCSV[ithinjet])
+            st_THINjetHadronFlavor.push_back(THINjetHadronFlavor[ithinjet])
+            st_THINjetNHadEF.push_back(thinjetNhadEF[ithinjet])
+            st_THINjetCHadEF.push_back(thinjetChadEF[ithinjet])
+
+            st_THINjetCEmEF.push_back(thinjetCEmEF[ithinjet])
+            st_THINjetPhoEF.push_back(thinjetPhoEF[ithinjet])
+            st_THINjetEleEF.push_back(thinjetEleEF[ithinjet])
+            st_THINjetMuoEF.push_back(thinjetMuoEF[ithinjet])
+            st_THINjetCorrUnc.push_back(thinjetCorrUnc[ithinjet])
+
+        st_nEle[0] = len(myEles)
+        for iele in myEles:
+            st_eleP4.push_back(eleP4[iele])
+            st_elePx.push_back(eleP4[iele].Px())
+            st_elePy.push_back(eleP4[iele].Py())
+            st_elePz.push_back(eleP4[iele].Pz())
+            st_eleEnergy.push_back(eleP4[iele].E())
+            st_eleIsPassLoose.push_back(bool(eleIsPassLoose[iele]))
+            st_eleIsPassTight.push_back(bool(eleIsPassTight[iele]))
+
+        st_nMu[0] = len(myMuos)
+        for imu in myMuos:
+            st_muP4.push_back(muP4[imu])
+            st_muPx.push_back(muP4[imu].Px())
+            st_muPy.push_back(muP4[imu].Py())
+            st_muPz.push_back(muP4[imu].Pz())
+            st_muEnergy.push_back(muP4[imu].E())
+            st_isTightMuon.push_back(bool(isTightMuon[imu]))
+            st_muIso.push_back(myMuonIso[imu])
+
+        st_HPSTau_n[0] = len(myTaus)
+        st_nTauTightElectron[0] = len(myTausTightElectron)
+        st_nTauTightMuon[0] = len(myTausTightMuon)
+        st_nTauTightEleMu[0] = len(myTausTightEleMu)
+        st_nTauLooseEleMu[0] = len(myTausLooseEleMu)
+
+        st_nPho[0]=len(myPhos)
+        for ipho in myPhos:
+            st_phoP4.push_back(phoP4[ipho])
+            st_phoPx.push_back(phoP4[ipho].Px())
+            st_phoPy.push_back(phoP4[ipho].Py())
+            st_phoPz.push_back(phoP4[ipho].Pz())
+            st_phoEnergy.push_back(phoP4[ipho].E())
+            st_phoIsPassTight.push_back(bool(phoIsPassTight[ipho]))
+
+        st_pu_nTrueInt[0] = pu_nTrueInt
+        st_pu_nPUVert[0] = pu_nPUVert
+        st_THINjetNPV[0] = THINjetNPV
+
+        st_nGenPar[0] =  nGenPar
+        for igp in range(nGenPar):
+            st_genParId.push_back(genParId[igp])
+            st_genMomParId.push_back(genMomParId[igp])
+            st_genParSt.push_back(genParSt[igp])
+            st_genParP4.push_back(genParP4[igp])
+            st_genParPx.push_back(genParP4[igp].Px())
+            st_genParPy.push_back(genParP4[igp].Py())
+            st_genParPz.push_back(genParP4[igp].Pz())
+            st_genParEnergy.push_back(genParP4[igp].E())
+        st_pfMetUncJetResUp.push_back(pfMetJetUnc[0])
+        st_pfMetUncJetResDown.push_back(pfMetJetUnc[1])
+
+        st_pfMetUncJetEnUp.push_back(pfMetJetUnc[2])
+        st_pfMetUncJetEnDown.push_back(pfMetJetUnc[3])
+
+        ## Fill variables for the CRs.
+        WenuRecoil[0] = -1.0
+        Wenumass[0] = -1.0
+        WenuPhi[0] = -10.
+
+        WmunuRecoil[0] = -1.0
+        Wmunumass[0] = -1.0
+        WmunuPhi[0] = -10.
+
+        ZeeMass[0] = -1.0
+        ZeeRecoil[0] = -1.0
+        ZeePhi[0] = -10.
+
+        ZmumuMass[0] = -1.0
+        ZmumuRecoil[0] = -1.0
+        ZmumuPhi[0] = -10.
+
+        TOPRecoil[0] = -1.0
+        TOPPhi[0] = -10.
+
+        GammaRecoil[0] = -1.0
+        GammaPhi[0]  = -10.
+
+# ------------------
+# Z CR
+# ------------------
+        ## for dielectron
+        if len(myEles) == 2:
+            iele1=myEles[0]
+            iele2=myEles[1]
+            p4_ele1 = eleP4[iele1]
+            p4_ele2 = eleP4[iele2]
+            if eleCharge[iele1]*eleCharge[iele2]<0:
+                ee_mass = ( p4_ele1 + p4_ele2 ).M()
+                zeeRecoilPx = -( pfMet*math.cos(pfMetPhi) + p4_ele1.Px() + p4_ele2.Px())
+                zeeRecoilPy = -( pfMet*math.sin(pfMetPhi) + p4_ele1.Py() + p4_ele2.Py())
+                ZeeRecoilPt =  math.sqrt(zeeRecoilPx**2  +  zeeRecoilPy**2)
+                if ee_mass > 70.0 and ee_mass < 110.0 and ZeeRecoilPt > 200.:
+                    ZeeRecoil[0] = ZeeRecoilPt
+                    ZeeMass[0] = ee_mass
+                    ZeePhi[0] = arctan(zeeRecoilPx,zeeRecoilPy)
+
+        ## for dimu
+        if len(myMuos) ==2:
+            imu1=myMuos[0]
+            imu2=myMuos[1]
+            p4_mu1 = muP4[imu1]
+            p4_mu2 = muP4[imu2]
+            if muCharge[imu1]*muCharge[imu2]<0:
+                mumu_mass = ( p4_mu1 + p4_mu2 ).M()
+                zmumuRecoilPx = -( pfMet*math.cos(pfMetPhi) + p4_mu1.Px() + p4_mu2.Px())
+                zmumuRecoilPy = -( pfMet*math.sin(pfMetPhi) + p4_mu1.Py() + p4_mu2.Py())
+                ZmumuRecoilPt =  math.sqrt(zmumuRecoilPx**2  +  zmumuRecoilPy**2)
+                if mumu_mass > 70.0 and mumu_mass < 110.0 and ZmumuRecoilPt > 200.:
+                    ZmumuRecoil[0] = ZmumuRecoilPt
+                    ZmumuMass[0] = mumu_mass
+                    ZmumuPhi[0] = arctan(zmumuRecoilPx,zmumuRecoilPy)
+
+        if len(myEles) == 2:
+            ZRecoilstatus =(ZeeRecoil[0] > 200)
+        elif len(myMuos) == 2:
+            ZRecoilstatus =(ZmumuRecoil[0] > 200)
+        else:
+            ZRecoilstatus=False
+
+# ------------------
+# W CR
+# ------------------
+
+        ## for Single electron
+        if len(myEles) == 1:
+           ele1 = myEles[0]
+           p4_ele1 = eleP4[ele1]
+           e_mass = MT(p4_ele1.Pt(),pfMet, DeltaPhi(p4_ele1.Phi(),pfMetPhi)) #transverse mass defined as sqrt{2pT*MET*(1-cos(dphi)}
+           WenuRecoilPx = -( pfMet*math.cos(pfMetPhi) + p4_ele1.Px())
+           WenuRecoilPy = -( pfMet*math.sin(pfMetPhi) + p4_ele1.Py())
+           WenuRecoilPt = math.sqrt(WenuRecoilPx**2  +  WenuRecoilPy**2)
+           if WenuRecoilPt > 200.:
+               WenuRecoil[0] = WenuRecoilPt
+               Wenumass[0] = e_mass
+               WenuPhi[0] = arctan(WenuRecoilPx,WenuRecoilPy)
+
+        ## for Single muon
+        if len(myMuos) == 1:
+           mu1 = myMuos[0]
+           p4_mu1 = muP4[mu1]
+           mu_mass = MT(p4_mu1.Pt(),pfMet, DeltaPhi(p4_mu1.Phi(),pfMetPhi)) #transverse mass defined as sqrt{2pT*MET*(1-cos(dphi)}
+           WmunuRecoilPx = -( pfMet*math.cos(pfMetPhi) + p4_mu1.Px())
+           WmunuRecoilPy = -( pfMet*math.sin(pfMetPhi) + p4_mu1.Py())
+           WmunuRecoilPt = math.sqrt(WmunuRecoilPx**2  +  WmunuRecoilPy**2)
+           if WmunuRecoilPt > 200.:
+               WmunuRecoil[0] = WmunuRecoilPt
+               Wmunumass[0] = mu_mass
+               WmunuPhi[0] = arctan(WmunuRecoilPx,WmunuRecoilPy)
+        if len(myEles) == 1:
+            WRecoilstatus =(WenuRecoil[0] > 200)
+        elif len(myMuos) == 1:
+            WRecoilstatus =(WmunuRecoil[0] > 200)
+        else:
+            WRecoilstatus=False
+
+# ------------------
+# Gamma CR
+# ------------------
+        ## for Single photon
+        if len(myPhos) >= 1:
+           myPhosP4=[phoP4[myPhos[i]] for i in range(len(myPhos))]
+           p4_pho1 = sorted(myPhosP4,key=getPT,reverse=True)[0]
+           GammaRecoilPx = -( pfMet*math.cos(pfMetPhi) + p4_pho1.Px())
+           GammaRecoilPy = -( pfMet*math.sin(pfMetPhi) + p4_pho1.Py())
+           GammaRecoilPt = math.sqrt(GammaRecoilPx**2  +  GammaRecoilPy**2)
+           if GammaRecoilPt > 200.:
+               GammaRecoil[0] = GammaRecoilPt
+               GammaPhi[0] = arctan(GammaRecoilPx,GammaRecoilPy)
+
+        GammaRecoilStatus = (GammaRecoil[0] > 200)
+
+        if pfmetstatus==False and ZRecoilstatus==False and WRecoilstatus==False and GammaRecoilStatus==False:
+            continue
+
+        outTree.Fill()
+
+    h_total_mcweight.Write()
+    h_total.Write()
+    samplepath.Write()
+    outfile.Write()
+
+
+def CheckFilter(filterName, filterResult,filtercompare):
+    ifilter_=0
+    filter1 = False
+    for ifilter in filterName:
+        filter1 = (ifilter.find(filtercompare) != -1)  & (bool(filterResult[ifilter_]) == True)
+        if filter1: break
+        ifilter_ = ifilter_ + 1
+    return filter1
+
+def DeltaR(p4_1, p4_2):
+    eta1 = p4_1.Eta()
+    eta2 = p4_2.Eta()
+    eta = eta1 - eta2
+    eta_2 = eta * eta
+
+    phi1 = p4_1.Phi()
+    phi2 = p4_2.Phi()
+    phi = Phi_mpi_pi(phi1-phi2)
+    phi_2 = phi * phi
+
+    return math.sqrt(eta_2 + phi_2)
+
+def Phi_mpi_pi(x):
+    kPI = 3.14159265358979323846
+    kTWOPI = 2 * kPI
+
+    while (x >= kPI): x = x - kTWOPI;
+    while (x < -kPI): x = x + kTWOPI;
+    return x;
+
+def DeltaPhi(phi1,phi2):
+   phi = Phi_mpi_pi(phi1-phi2)
+
+   return abs(phi)
+
+def CheckFilter(filterName, filterResult,filtercompare):
+    ifilter_=0
+    filter1 = False
+    for ifilter in filterName:
+        filter1 = (ifilter.find(filtercompare) != -1)  & (bool(filterResult[ifilter_]) == True)
+        if filter1: break
+        ifilter_ = ifilter_ + 1
+    return filter1
+
+
+def GenWeightProducer(sample,nGenPar, genParId, genMomParId, genParSt,genParP4):
+    pt__=0;
+    #print " inside gen weight "
+    k2=1.0
+    #################
+    # WJets
+    #################
+    if sample=="WJETS":
+        goodLepID = []
+        for ig in range(nGenPar):
+            PID    = genParId[ig]
+            momPID = genMomParId[ig]
+            status = genParSt[ig]
+            if ( (abs(PID) != 11) & (abs(PID) != 12) &  (abs(PID) != 13) & (abs(PID) != 14) &  (abs(PID) != 15) &  (abs(PID) != 16) ): continue
+            #print "lepton found"
+            if ( ( (status != 1) & (abs(PID) != 15)) | ( (status != 2) & (abs(PID) == 15)) ): continue
+            #print "tau found"
+            if ( (abs(momPID) != 24) & (momPID != PID) ): continue
+            #print "W found"
+            #print "aftrer WJ if statement"
+            goodLepID.append(ig)
+        #print "length = ",len(goodLepID)
+        if len(goodLepID) == 2 :
+            l4_thisLep = genParP4[goodLepID[0]]
+            l4_thatLep = genParP4[goodLepID[1]]
+            l4_z = l4_thisLep + l4_thatLep
+
+            pt = l4_z.Pt()
+            pt__ = pt
+            print " pt inside "
+            k2 = -0.830041 + 7.93714 *TMath.Power( pt - (-877.978) ,(-0.213831) ) ;
+
+    #################
+    #ZJets
+    #################
+    if sample == "ZJETS":
+        print " inside zjets "
+        goodLepID = []
+        for ig in range(nGenPar):
+         #   print " inside loop "
+            PID    = genParId[ig]
+            momPID = genMomParId[ig]
+            status = genParSt[ig]
+          #  print " after vars "
+
+            if ( (abs(PID) != 12) &  (abs(PID) != 14) &  (abs(PID) != 16) ) : continue
+            if ( status != 1 ) : continue
+            if ( (momPID != 23) & (momPID != PID) ) : continue
+            goodLepID.append(ig)
+
+        if len(goodLepID) == 2 :
+            l4_thisLep = genParP4[goodLepID[0]]
+            l4_thatLep = genParP4[goodLepID[1]]
+            l4_z = l4_thisLep + l4_thatLep
+            pt = l4_z.Pt()
+            print " pt inside "
+            k2 = -0.180805 + 6.04146 *TMath.Power( pt - (-759.098) ,(-0.242556) ) ;
+
+    #################
+    #TTBar
+    #################
+    if (sample=="TT"):
+        print " inside ttbar "
+        goodLepID = []
+        for ig in range(nGenPar):
+            print "inside TT loop "
+            PID    = genParId[ig]
+            momPID = genMomParId[ig]
+            status = genParSt[ig]
+            if ( abs(PID) == 6) :
+                goodLepID.append(ig)
+        if(len(goodLepID)==2):
+            l4_thisLep = genParP4[goodLepID[0]]
+            l4_thatLep = genParP4[goodLepID[1]]
+            pt1 = TMath.Min(400.0, l4_thisLep.Pt())
+            pt2 = TMath.Min(400.0, l4_thatLep.Pt())
+
+            w1 = TMath.Exp(0.156 - 0.00137*pt1);
+            w2 = TMath.Exp(0.156 - 0.00137*pt2);
+            k2 =  1.001*TMath.Sqrt(w1*w2);
+
+    if(sample=="all"):
+        k2 = 1.0
+
+    return k2
+
+def MT(Pt, met, dphi):
+    return ROOT.TMath.Sqrt( 2 * Pt * met * (1.0 - ROOT.TMath.Cos(dphi)) )
+
+if __name__ == "__main__":
+    AnalyzeDataSet()
