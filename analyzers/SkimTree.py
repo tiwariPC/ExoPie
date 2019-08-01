@@ -2,7 +2,7 @@
 from ROOT import TFile, TTree, TH1F, TH1D, TH1, TCanvas, TChain,TGraphAsymmErrors, TMath, TH2D, TLorentzVector, AddressOf, gROOT, TNamed
 import ROOT as ROOT
 import os
-import sys, optparse
+import sys, optparse,argparse
 from array import array
 import math
 import numpy as numpy
@@ -22,6 +22,7 @@ import multiprocessing as mp
 outfilename= 'SkimmedTree.root'
 PUPPI = True
 CA15  = False
+
 usage = "analyzer for t+DM (debugging) "
 parser = argparse.ArgumentParser(description=usage)
 parser.add_argument("-i", "--inputfile",  dest="inputfile")
@@ -78,10 +79,10 @@ def runbbdm(infile_):
     outfile = TFile(outfilename,'RECREATE')
 
     outTree = TTree( 'outTree', 'tree branches' )
-    if isfarmout:
-        samplepath = TNamed('samplepath', str(f_tmp).split('"')[1])
-    else:
-        samplepath = TNamed('samplepath', str(inputfilename))
+    # if isfarmout:
+    #     samplepath = TNamed('samplepath', str(f_tmp).split('"')[1])
+    # else:
+    samplepath = TNamed('samplepath', str(infile))
 
     st_runId                  = numpy.zeros(1, dtype=int)
     st_lumiSection            = array( 'L', [ 0 ] )
@@ -592,7 +593,7 @@ def runbbdm(infile_):
                 st_eleP4.push_back(elept[iele])
                 st_elePx.push_back(elepx_[iele])
                 st_elePy.push_back(elepy_[iele])
-                st_elePz.push_back(elepz_[iele]
+                st_elePz.push_back(elepz_[iele])
                 st_eleEnergy.push_back(elee_[iele])
                 st_eleIsPassTight.push_back(bool(eleTightid_[iele]))
 
