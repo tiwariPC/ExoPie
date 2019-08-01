@@ -69,7 +69,7 @@ def arctan(x,y):
     else:
         return math.pi/2+corr
 
-def getPT(P4):
+def getPT_skim(P4):
     return P4.Pt()
 
 def runbbdm(infile_):
@@ -676,14 +676,12 @@ def runbbdm(infile_):
     # ------------------
             ## for dielectron
             if len(pass_ele_index) == 2:
-                iele1=myEles[0]
-                iele2=myEles[1]
-                p4_ele1 = eleP4[iele1]
-                p4_ele2 = eleP4[iele2]
-                if eleCharge[iele1]*eleCharge[iele2]<0:
-                    ee_mass = ( p4_ele1 + p4_ele2 ).M()
-                    zeeRecoilPx = -( pfMet*math.cos(pfMetPhi) + p4_ele1.Px() + p4_ele2.Px())
-                    zeeRecoilPy = -( pfMet*math.sin(pfMetPhi) + p4_ele1.Py() + p4_ele2.Py())
+                iele1=pass_ele_index[0]
+                iele2=pass_ele_index[1]
+                if eleCharge_[iele1]*eleCharge_[iele2]<0:
+                    ee_mass = InvMass(elepx_[iele1],elepy_[iele1],elepz_[iele1],elepe_[iele1],elepx_[iele2],elepy_[iele2],elepz_[iele2],elee_[iele2])
+                    zeeRecoilPx = -( met_*math.cos(metphi_) + elepx_[iele1] + elepx_[iele2])
+                    zeeRecoilPy = -( met_*math.sin(metphi_) + elepy_[iele1] + elepy_[iele2])
                     ZeeRecoilPt =  math.sqrt(zeeRecoilPx**2  +  zeeRecoilPy**2)
                     if ee_mass > 70.0 and ee_mass < 110.0 and ZeeRecoilPt > 200.:
                         ZeeRecoil[0] = ZeeRecoilPt
@@ -691,15 +689,13 @@ def runbbdm(infile_):
                         ZeePhi[0] = arctan(zeeRecoilPx,zeeRecoilPy)
 
             ## for dimu
-            if len(myMuos) ==2:
-                imu1=myMuos[0]
-                imu2=myMuos[1]
-                p4_mu1 = muP4[imu1]
-                p4_mu2 = muP4[imu2]
+            if len(pass_mu_index) ==2:
+                imu1=pass_mu_index[0]
+                imu2=pass_mu_index[1]
                 if muCharge[imu1]*muCharge[imu2]<0:
-                    mumu_mass = ( p4_mu1 + p4_mu2 ).M()
-                    zmumuRecoilPx = -( pfMet*math.cos(pfMetPhi) + p4_mu1.Px() + p4_mu2.Px())
-                    zmumuRecoilPy = -( pfMet*math.sin(pfMetPhi) + p4_mu1.Py() + p4_mu2.Py())
+                    mumu_mass = InvMass(mupx_[imu1],mupy_[imu1],mupz_[imu1],mupe_[imu1],mupx_[imu2],mupy_[imu2],mupz_[imu2],mue_[imu2] )
+                    zmumuRecoilPx = -( met_*math.cos(metphi_) + mupx_[imu1] + mupx_[imu2])
+                    zmumuRecoilPy = -( met_*math.sin(metphi_) + mupy_[imu1] + mupy_[imu2])
                     ZmumuRecoilPt =  math.sqrt(zmumuRecoilPx**2  +  zmumuRecoilPy**2)
                     if mumu_mass > 70.0 and mumu_mass < 110.0 and ZmumuRecoilPt > 200.:
                         ZmumuRecoil[0] = ZmumuRecoilPt
@@ -718,12 +714,11 @@ def runbbdm(infile_):
     # ------------------
 
             ## for Single electron
-            if len(myEles) == 1:
-               ele1 = myEles[0]
-               p4_ele1 = eleP4[ele1]
-               e_mass = MT(p4_ele1.Pt(),pfMet, DeltaPhi(p4_ele1.Phi(),pfMetPhi)) #transverse mass defined as sqrt{2pT*MET*(1-cos(dphi)}
-               WenuRecoilPx = -( pfMet*math.cos(pfMetPhi) + p4_ele1.Px())
-               WenuRecoilPy = -( pfMet*math.sin(pfMetPhi) + p4_ele1.Py())
+            if len(pass_ele_index) == 1:
+               ele1 = pass_ele_index[0]
+               e_mass = MT(elept[ele1],pfMet, DeltaPhi(elephi[ele1],metphi_)) #transverse mass defined as sqrt{2pT*MET*(1-cos(dphi)}
+               WenuRecoilPx = -( met_*math.cos(metphi_) + elepx_[ele1])
+               WenuRecoilPy = -( met_*math.sin(metphi_) + elepy_[ele1])
                WenuRecoilPt = math.sqrt(WenuRecoilPx**2  +  WenuRecoilPy**2)
                if WenuRecoilPt > 200.:
                    WenuRecoil[0] = WenuRecoilPt
@@ -731,12 +726,11 @@ def runbbdm(infile_):
                    WenuPhi[0] = arctan(WenuRecoilPx,WenuRecoilPy)
 
             ## for Single muon
-            if len(myMuos) == 1:
-               mu1 = myMuos[0]
-               p4_mu1 = muP4[mu1]
-               mu_mass = MT(p4_mu1.Pt(),pfMet, DeltaPhi(p4_mu1.Phi(),pfMetPhi)) #transverse mass defined as sqrt{2pT*MET*(1-cos(dphi)}
-               WmunuRecoilPx = -( pfMet*math.cos(pfMetPhi) + p4_mu1.Px())
-               WmunuRecoilPy = -( pfMet*math.sin(pfMetPhi) + p4_mu1.Py())
+            if len(pass_mu_index) == 1:
+               mu1 = pass_mu_index[0]
+               mu_mass = MT(mupt[mu1],met_, DeltaPhi(muphi[mu1],metphi_)) #transverse mass defined as sqrt{2pT*MET*(1-cos(dphi)}
+               WmunuRecoilPx = -( met_*math.cos(metphi_) + mupx_[mu1])
+               WmunuRecoilPy = -( met_*math.sin(metphi_) + mupy_[mu1])
                WmunuRecoilPt = math.sqrt(WmunuRecoilPx**2  +  WmunuRecoilPy**2)
                if WmunuRecoilPt > 200.:
                    WmunuRecoil[0] = WmunuRecoilPt
@@ -753,11 +747,10 @@ def runbbdm(infile_):
     # Gamma CR
     # ------------------
             ## for Single photon
-            if len(myPhos) >= 1:
-               myPhosP4=[phoP4[myPhos[i]] for i in range(len(myPhos))]
-               p4_pho1 = sorted(myPhosP4,key=getPT,reverse=True)[0]
-               GammaRecoilPx = -( pfMet*math.cos(pfMetPhi) + p4_pho1.Px())
-               GammaRecoilPy = -( pfMet*math.sin(pfMetPhi) + p4_pho1.Py())
+            if len(pass_pho_index) >= 1:
+               pho1 = sorted(phopt,reverse=True)[0]
+               GammaRecoilPx = -( met_*math.cos(metphi_) + phox_[pho1])
+               GammaRecoilPy = -( met_*math.sin(metphi_) + phox_[pho1])
                GammaRecoilPt = math.sqrt(GammaRecoilPx**2  +  GammaRecoilPy**2)
                if GammaRecoilPt > 200.:
                    GammaRecoil[0] = GammaRecoilPt
@@ -909,6 +902,9 @@ def GenWeightProducer(sample,nGenPar, genParId, genMomParId, genParSt,genParP4):
 
 def MT(Pt, met, dphi):
     return ROOT.TMath.Sqrt( 2 * Pt * met * (1.0 - ROOT.TMath.Cos(dphi)) )
+
+def InvMass(px1,py1,pz1,pe1,px2,py2,pz2,pe2):
+        return sqrt((pe1+pe2)**2 - (px1+px2)**2 + (py1+py2)**2 + (pz1+pz2)**2)
 
 if __name__ == "__main__":
     AnalyzeDataSet()
