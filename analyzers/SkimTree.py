@@ -438,8 +438,8 @@ def runbbdm(infile_):
                 jetCleaned = logical_AND_List2(jetCleanAgainstEle, jetCleanAgainstMu)
                 pass_jet_index_cleaned = []
                 pass_jet_index_cleaned = WhereIsTrue(jetCleaned, 3)
-                if debug_:print "pass_jet_index_cleaned = ", pass_jet_index_cleaned
-
+                if debug_:print "pass_jet_index_cleaned = ", pass_jet_index_cleaned,"nJets= ",len(ak4px_)
+            if debug_:print "pass_jet_index_cleaned = ", pass_jet_index_cleaned,"nJets= ",len(ak4px_)
             '''
             ********    *        *       *
                *      *    *     *       *
