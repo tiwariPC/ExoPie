@@ -369,6 +369,7 @@ def runbbdm(infile_):
                 ele_pt10_eta2p5_looseID = logical_AND_List3(ele_pt10,ele_IDLoose, ele_eta2p5)
 
             pass_ele_index = WhereIsTrue(ele_pt10_eta2p5_looseID, 1)
+            if debug_: "pass_ele_index",pass_ele_index
 
             '''
             **     *  *     *
@@ -392,7 +393,7 @@ def runbbdm(infile_):
                 mu_pt10_eta2p4_looseID_looseISO = logical_AND_List2(mu_IDLoose, mu_IsoLoose)
 
             pass_mu_index = WhereIsTrue(mu_pt10_eta2p4_looseID_looseISO, 1)
-
+            if debug_: "pass_mu_index",pass_mu_index
             '''
             *******   *****   *******
                *      *          *
@@ -411,32 +412,33 @@ def runbbdm(infile_):
             ak4_pt30_eta4p5_IDT = []
             if len(ak4_pt30) > 0:
                 ak4_pt30_eta4p5_IDT = logical_AND_List3(ak4_pt30, ak4_eta4p5, ak4_IDTightVeto)
-            jetCleanAgainstEle = []
-            for ijet in range(len(ak4_pt30_eta4p5_IDT)):
-                pass_ijet_iele_ = []
-                for iele in range(len(ele_pt10_eta2p5_looseID)):
-                    pass_ijet_iele_.append(ak4_pt30_eta4p5_IDT[ijet] and ele_pt10_eta2p5_looseID[iele] and (
-                        Delta_R(ak4eta[ijet], eleeta[iele], ak4phi[ijet], elephi[iele]) > 0.4))
-                # if the number of true is equal to length of vector then it is ok to keep this jet, otherwise this is not cleaned
-                jetCleanAgainstEle.append(len(WhereIsTrue(pass_ijet_iele_)) == len(pass_ijet_iele_))
-                if debug_:
-                    print "pass_ijet_iele_ = ", pass_ijet_iele_
-                    print "jetCleanAgainstEle = ", jetCleanAgainstEle
+            if len(ak4_pt30_eta4p5_IDT) > 0:
+                jetCleanAgainstEle = []
+                for ijet in range(len(ak4_pt30_eta4p5_IDT)):
+                    pass_ijet_iele_ = []
+                    for iele in range(len(ele_pt10_eta2p5_looseID)):
+                        pass_ijet_iele_.append(ak4_pt30_eta4p5_IDT[ijet] and ele_pt10_eta2p5_looseID[iele] and (
+                            Delta_R(ak4eta[ijet], eleeta[iele], ak4phi[ijet], elephi[iele]) > 0.4))
+                    # if the number of true is equal to length of vector then it is ok to keep this jet, otherwise this is not cleaned
+                    jetCleanAgainstEle.append(len(WhereIsTrue(pass_ijet_iele_)) == len(pass_ijet_iele_))
+                    if debug_:
+                        print "pass_ijet_iele_ = ", pass_ijet_iele_
+                        print "jetCleanAgainstEle = ", jetCleanAgainstEle
 
-            jetCleanAgainstMu = []
-            for ijet in range(len(ak4_pt30_eta4p5_IDT)):
-                pass_ijet_imu_ = []
-                for imu in range(len(mu_pt10_eta2p4_looseID_looseISO)):
-                    pass_ijet_imu_.append(ak4_pt30_eta4p5_IDT[ijet] and mu_pt10_eta2p4_looseID_looseISO[imu] and (Delta_R(ak4eta[ijet], mueta[imu], ak4phi[ijet], muphi[imu]) > 0.4))
-                # if the number of true is equal to length of vector then it is ok to keep this jet, otherwise this is not cleaned
-                if debug_:print "pass_ijet_imu_ = ", pass_ijet_imu_
-                jetCleanAgainstMu.append(len(WhereIsTrue(pass_ijet_imu_)) == len(pass_ijet_imu_))
-                if debug_:print "jetCleanAgainstMu = ", jetCleanAgainstMu
+                jetCleanAgainstMu = []
+                for ijet in range(len(ak4_pt30_eta4p5_IDT)):
+                    pass_ijet_imu_ = []
+                    for imu in range(len(mu_pt10_eta2p4_looseID_looseISO)):
+                        pass_ijet_imu_.append(ak4_pt30_eta4p5_IDT[ijet] and mu_pt10_eta2p4_looseID_looseISO[imu] and (Delta_R(ak4eta[ijet], mueta[imu], ak4phi[ijet], muphi[imu]) > 0.4))
+                    # if the number of true is equal to length of vector then it is ok to keep this jet, otherwise this is not cleaned
+                    if debug_:print "pass_ijet_imu_ = ", pass_ijet_imu_
+                    jetCleanAgainstMu.append(len(WhereIsTrue(pass_ijet_imu_)) == len(pass_ijet_imu_))
+                    if debug_:print "jetCleanAgainstMu = ", jetCleanAgainstMu
 
-            jetCleaned = logical_AND_List2(jetCleanAgainstEle, jetCleanAgainstMu)
-            pass_jet_index_cleaned = []
-            pass_jet_index_cleaned = WhereIsTrue(jetCleaned, 3)
-            if debug_:print "pass_jet_index_cleaned = ", pass_jet_index_cleaned
+                jetCleaned = logical_AND_List2(jetCleanAgainstEle, jetCleanAgainstMu)
+                pass_jet_index_cleaned = []
+                pass_jet_index_cleaned = WhereIsTrue(jetCleaned, 3)
+                if debug_:print "pass_jet_index_cleaned = ", pass_jet_index_cleaned
 
             '''
             ********    *        *       *
@@ -466,30 +468,33 @@ def runbbdm(infile_):
                 tau_eta2p3_iDLdm_pt18 = logical_AND_List4(
                     tau_eta2p3, tau_DM, tau_pt18,tau_IDLoose )
             if debug_:print "tau_eta2p3_iDLdm_pt18 = ", tau_eta2p3_iDLdm_pt18
-            tauCleanAgainstEle = []
-            for itau in range(len(tau_pt18_eta2p3)):
-                pass_itau_iele_ = []
-                for iele in range(len(ele_pt10_eta2p5_looseID)):
-                    pass_itau_iele_.append(tau_pt18_eta2p3[itau] and ele_pt10_eta2p5_looseID[iele] and (Delta_R(taueta[itau], eleeta[iele], tauphi[itau], elephi[iele]) > 0.4))
-                # if the number of true is equal to length of vector then it is ok to keep this jet, otherwise this is not cleaned
-                tauCleanAgainstEle.append(len(WhereIsTrue(pass_itau_iele_)) == len(pass_itau_iele_))
-                if debug_:
-                    print "pass_itau_iele_ = ", pass_itau_iele_
-                    print "tauCleanAgainstEle = ", tauCleanAgainstEle
 
-            tauCleanAgainstMu = []
-            for itau in range(len(tau_pt18_eta2p3)):
-                pass_itau_imu_ = []
-                for imu in range(len(mu_pt10_eta2p4_looseID_looseISO)):
-                    pass_itau_imu_.append(tau_pt18_eta2p3[itau] and mu_pt10_eta2p4_looseID_looseISO[imu] and (Delta_R(taueta[itau], mueta[imu], tauphi[itau], muphi[imu]) > 0.4))
-                # if the number of true is equal to length of vector then it is ok to keep this jet, otherwise this is not cleaned
-                if debug_:print "pass_itau_imu_ = ", pass_itau_imu_
-                tauCleanAgainstMu.append(len(WhereIsTrue(pass_itau_imu_)) == len(pass_itau_imu_))
-                if debug_:print "tauCleanAgainstMu = ", tauCleanAgainstMu
+            if len(tau_pt18_eta2p3)>0:
+                tauCleanAgainstEle = []
+                for itau in range(len(tau_pt18_eta2p3)):
+                    pass_itau_iele_ = []
+                    for iele in range(len(ele_pt10_eta2p5_looseID)):
+                        pass_itau_iele_.append(tau_pt18_eta2p3[itau] and ele_pt10_eta2p5_looseID[iele] and (Delta_R(taueta[itau], eleeta[iele], tauphi[itau], elephi[iele]) > 0.4))
+                    # if the number of true is equal to length of vector then it is ok to keep this jet, otherwise this is not cleaned
+                    tauCleanAgainstEle.append(len(WhereIsTrue(pass_itau_iele_)) == len(pass_itau_iele_))
+                    if debug_:
+                        print "pass_itau_iele_ = ", pass_itau_iele_
+                        print "tauCleanAgainstEle = ", tauCleanAgainstEle
 
-            tauCleaned = logical_AND_List2(tauCleanAgainstEle, tauCleanAgainstMu)
-            pass_tau_index_cleaned = []
-            pass_tau_index_cleaned = WhereIsTrue(tauCleaned,3)
+                tauCleanAgainstMu = []
+                for itau in range(len(tau_pt18_eta2p3)):
+                    pass_itau_imu_ = []
+                    for imu in range(len(mu_pt10_eta2p4_looseID_looseISO)):
+                        pass_itau_imu_.append(tau_pt18_eta2p3[itau] and mu_pt10_eta2p4_looseID_looseISO[imu] and (Delta_R(taueta[itau], mueta[imu], tauphi[itau], muphi[imu]) > 0.4))
+                    # if the number of true is equal to length of vector then it is ok to keep this jet, otherwise this is not cleaned
+                    if debug_:print "pass_itau_imu_ = ", pass_itau_imu_
+                    tauCleanAgainstMu.append(len(WhereIsTrue(pass_itau_imu_)) == len(pass_itau_imu_))
+                    if debug_:print "tauCleanAgainstMu = ", tauCleanAgainstMu
+
+                tauCleaned = logical_AND_List2(tauCleanAgainstEle, tauCleanAgainstMu)
+                pass_tau_index_cleaned = []
+                pass_tau_index_cleaned = WhereIsTrue(tauCleaned,3)
+                if debug_:print "pass_tau_index_cleaned",pass_tau_index_cleaned
 
             '''
             ********    *******     *       *
@@ -651,7 +656,7 @@ def runbbdm(infile_):
                 iele1=pass_ele_index[0]
                 iele2=pass_ele_index[1]
                 if eleCharge_[iele1]*eleCharge_[iele2]<0:
-                    ee_mass = InvMass(elepx_[iele1],elepy_[iele1],elepz_[iele1],elepe_[iele1],elepx_[iele2],elepy_[iele2],elepz_[iele2],elee_[iele2])
+                    ee_mass = InvMass(elepx_[iele1],elepy_[iele1],elepz_[iele1],elee_[iele1],elepx_[iele2],elepy_[iele2],elepz_[iele2],elee_[iele2])
                     zeeRecoilPx = -( met_*math.cos(metphi_) + elepx_[iele1] + elepx_[iele2])
                     zeeRecoilPy = -( met_*math.sin(metphi_) + elepy_[iele1] + elepy_[iele2])
                     ZeeRecoilPt =  math.sqrt(zeeRecoilPx**2  +  zeeRecoilPy**2)
@@ -664,8 +669,8 @@ def runbbdm(infile_):
             if len(pass_mu_index) ==2:
                 imu1=pass_mu_index[0]
                 imu2=pass_mu_index[1]
-                if muCharge[imu1]*muCharge[imu2]<0:
-                    mumu_mass = InvMass(mupx_[imu1],mupy_[imu1],mupz_[imu1],mupe_[imu1],mupx_[imu2],mupy_[imu2],mupz_[imu2],mue_[imu2] )
+                if muCharge_[imu1]*muCharge_[imu2]<0:
+                    mumu_mass = InvMass(mupx_[imu1],mupy_[imu1],mupz_[imu1],mue_[imu1],mupx_[imu2],mupy_[imu2],mupz_[imu2],mue_[imu2] )
                     zmumuRecoilPx = -( met_*math.cos(metphi_) + mupx_[imu1] + mupx_[imu2])
                     zmumuRecoilPy = -( met_*math.sin(metphi_) + mupy_[imu1] + mupy_[imu2])
                     ZmumuRecoilPt =  math.sqrt(zmumuRecoilPx**2  +  zmumuRecoilPy**2)
@@ -875,7 +880,7 @@ def MT(Pt, met, dphi):
     return ROOT.TMath.Sqrt( 2 * Pt * met * (1.0 - ROOT.TMath.Cos(dphi)) )
 
 def InvMass(px1,py1,pz1,pe1,px2,py2,pz2,pe2):
-        return sqrt((pe1+pe2)**2 - (px1+px2)**2 + (py1+py2)**2 + (pz1+pz2)**2)
+        return math.sqrt((pe1+pe2)**2 - (px1+px2)**2 + (py1+py2)**2 + (pz1+pz2)**2)
 
 files = ['NCUGlobalTuples.root']
 if __name__ == '__main__':
