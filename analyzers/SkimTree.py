@@ -10,6 +10,7 @@ import pandas
 from root_pandas import read_root
 from pandas import  DataFrame, concat
 from pandas import Series
+import time
 
 # snippet from Deepak
 from multiprocessing import Process
@@ -18,6 +19,9 @@ import multiprocessing as mp
 sys.path.append('utils')
 sys.path.append('../utils')
 from MathUtils import *
+
+print "starting clock"
+start = time.clock()
 
 outfilename= 'SkimmedTree.root'
 PUPPI = True
@@ -280,7 +284,7 @@ def runbbdm(infile_):
         outTree.Branch( 'GammaRecoil', GammaRecoil, 'GammaRecoil/F')
         outTree.Branch( 'GammaPhi', GammaPhi, 'GammaPhi/F')
         for run,lumi,event,isData,mcWeight_,pu_nTrueInt_,pu_nPUVert_,trigName_,trigResult_,filterName,filterResult,met_,metphi_,metUnc_,nele_,elepx_,elepy_,elepz_,elee_,elelooseid_,eleTightid_,eleCharge_,npho_,phopx_,phopy_,phopz_,phoe_,pholooseid_,photightID_,nmu_,mupx_,mupy_,mupz_,mue_,mulooseid_,mutightid_,muChHadIso_,muNeHadIso_,muGamIso_,muPUPt_,muCharge_,nTau_,tau_px_,tau_py_,tau_pz_,tau_e_,tau_dm_,tau_isLoose_,nGenPar_,genParId_,genMomParId_,genParSt_,genpx_,genpy_,genpz_,gene_,nak4jet_,ak4px_,ak4py_,ak4pz_,ak4e_,ak4TightID_,ak4deepcsv_,ak4flavor_,ak4NHEF_,ak4CHEF_,ak4CEmEF_,ak4PhEF_,ak4EleEF_,ak4MuEF_, ak4JEC_, ak4NPV_ in zip(df.runId,df.lumiSection,df.eventId,df.isData,df.mcWeight,df.pu_nTrueInt,df.pu_nPUVert,df.hlt_trigName,df.hlt_trigResult,df.hlt_filterName,df.hlt_filterResult,df.pfMetCorrPt,df.pfMetCorrPhi,df.pfMetCorrUnc,df.nEle,df.elePx,df.elePy,df.elePz,df.eleEnergy,df.eleIsPassLoose,df.eleIsPassTight,df.eleCharge,df.nPho,df.phoPx,df.phoPy,df.phoPz,df.phoEnergy,df.phoIsPassLoose,df.phoIsPassTight,df.nMu,df.muPx,df.muPy,df.muPz,df.muEnergy,df.isLooseMuon,df.isTightMuon,df.muChHadIso,df.muNeHadIso,df.muGamIso,df.muPUPt,df.muCharge,df.HPSTau_n,df.HPSTau_Px,df.HPSTau_Py,df.HPSTau_Pz,df.HPSTau_Energy,df.disc_decayModeFinding,df.disc_byLooseIsolationMVArun2v1DBoldDMwLT2016,df.nGenPar,df.genParId,df.genMomParId,df.genParSt,df.genPx,df.genPy,df.genPz,df.genEnergy,df.THINnJet,df.THINjetPx,df.THINjetPy,df.THINjetPz,df.THINjetEnergy,df.THINjetPassIDTight,df.THINjetDeepCSV_b,df.THINjetHadronFlavor,df.THINjetNHadEF,df.THINjetCHadEF,df.THINjetCEmEF,df.THINjetPhoEF,df.THINjetEleEF,df.THINjetMuoEF,df.THINjetCorrUncUp,df.THINjetNPV):
-            print "ievent = ", ieve
+            if ieve%100==0: print ieve, "event processed ",
             ieve = ieve + 1
             # -------------------------------------------------
             # MC Weights
@@ -736,12 +740,14 @@ def runbbdm(infile_):
                 continue
 
             outTree.Fill()
-
+        outfile.cd()
         h_total_mcweight.Write()
         h_total.Write()
         samplepath.Write()
         outfile.Write()
 
+    end = time.clock()
+    print "%.4gs" % (end-start)
 
 def CheckFilter(filterName, filterResult,filtercompare):
     ifilter_=0
