@@ -575,7 +575,7 @@ def runbbdm(infile_):
                 st_THINjetPx.push_back(ak4px_[ithinjet])
                 st_THINjetPy.push_back(ak4py_[ithinjet])
                 st_THINjetPz.push_back(ak4pz_[ithinjet])
-                st_THINjetEnergy.push_back(ak4e_[ithinjet]
+                st_THINjetEnergy.push_back(ak4e_[ithinjet])
                 st_THINjetDeepCSV.push_back(ak4deepcsv_[ithinjet])
                 st_THINjetHadronFlavor.push_back(ak4flavor_[ithinjet])
                 st_THINjetNHadEF.push_back(ak4NHEF_[ithinjet])
