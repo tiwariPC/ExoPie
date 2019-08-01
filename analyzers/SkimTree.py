@@ -15,9 +15,9 @@ from pandas import Series
 from multiprocessing import Process
 import multiprocessing as mp
 
-# snippet from Deepak
-from multiprocessing import Process
-import multiprocessing as mp
+sys.path.append('utils')
+sys.path.append('../utils')
+from MathUtils import *
 
 outfilename= 'SkimmedTree.root'
 PUPPI = True
@@ -278,9 +278,6 @@ def runbbdm(infile_):
     outTree.Branch( 'ZmumuMass', ZmumuMass, 'ZmumuMass/F')
     outTree.Branch( 'ZmumuPhi', ZmumuPhi, 'ZmumuPhi/F')
 
-    outTree.Branch( 'TOPRecoil', TOPRecoil, 'TOPRecoil/F')
-    outTree.Branch( 'TOPPhi', TOPPhi, 'TOPPhi/F')
-
     outTree.Branch( 'GammaRecoil', GammaRecoil, 'GammaRecoil/F')
     outTree.Branch( 'GammaPhi', GammaPhi, 'GammaPhi/F')
 
@@ -288,9 +285,10 @@ def runbbdm(infile_):
     #    NEntries=int(sys.argv[2])
     #    print "WARNING: Running in TEST MODE"
     jetvariables = ['runId','lumiSection','eventId','isData','mcWeight','pu_nTrueInt','pu_nPUVert','hlt_trigName','hlt_trigResult','hlt_filterName','hlt_filterResult','pfMetCorrPt','pfMetCorrPhi','pfMetCorrUnc','nEle','elePx','elePy','elePz','eleEnergy','eleIsPassLoose','eleIsPassTight','eleCharge','nPho','phoPx','phoPy','phoPz','phoEnergy','phoIsPassLoose','phoIsPassTight','nMu','muPx','muPy','muPz','muEnergy','isLooseMuon','isTightMuon','muChHadIso','muNeHadIso','muGamIso','muPUPt','muCharge','HPSTau_n','HPSTau_Px','HPSTau_Py','HPSTau_Pz','HPSTau_Energy','disc_decayModeFinding','disc_byLooseIsolationMVA3oldDMwLT','nGenPar','genParId','genMomParId','genParSt','genPx','genPy','genPz','genEnergy','THINnJet', 'THINjetPx', 'THINjetPy', 'THINjetPz', 'THINjetEnergy','THINjetPassIDLoose','THINjetDeepCSV_b', 'THINjetHadronFlavor', 'THINjetNHadEF', 'THINjetCHadEF', 'THINjetCEmEF', 'THINjetPhoEF', 'THINjetEleEF', 'THINjetMuoEF', 'THINjetCorrUncUp','THINjetNPV']
+    filename = infile_
     ieve = 0;icount = 0
     for df in read_root(filename, columns=jetvariables, chunksize=125000):
-        for run,lumi,event,isData,mcWeight_,pu_nTrueInt_,pu_nPUVert_,trigName_,trigResult_,filterName,filterResult,met_,metphi_,metUnc_,nEle_,elepx_,elepy_,elepz_,elee_,eleLooseid_,eleTightid_,eleCharge_,npho_,phopx_,phopy_,phopz_,phoe_,pholooseid_,photightID_,nMu_,mupx_,mupy_,mupz_,mue_,mulooseid_,mutightid_,muChHadIso_,muNeHadIso_,muGamIso_,muPUPt_,muCharge_,HPSTau_n_,taupx_,taupy_,taupz_,taue_,tau_dMF_,tau_isLoose_,nGenPar_,genParId_,genMomParId_,genParSt_,genpx_,genpy_,genpz_,genp_,nak4jet_,ak4px_,ak4py_,ak4pz_,ak4e_,ak4LooseID_,ak4deepcsv_,ak4flavor_,ak4NHEF_,ak4CHEF_,ak4CEmEF_,ak4PhEF_,ak4EleEF_,ak4MuEF_, ak4JEC_, ak4NPV_ in zip(df.runId,df.lumiSection,df.eventId,df.isData,df.mcWeight,df.pu_nTrueInt,df.pu_nPUVert,df.hlt_trigName,df.hlt_trigResult,df.hlt_filterName,df.hlt_filterResult,df.pfMetCorrPt,df.pfMetCorrPhi,df.pfMetCorrUnc,df.nEle,df.elePx,df.elePy,df.elePz,df.eleEnergy,df.eleIsPassLoose,df.eleIsPassTight,df.eleCharge,df.nPho,df.phoPx,df.phoPy,df.phoPz,df.phoEnergy,df.phoIsPassLoose,df.phoIsPassTight,df.nMu,df.muPx,df.muPy,df.muPz,df.muEnergy,df.isLooseMuon,df.isTightMuon,df.muChHadIso,df.muNeHadIso,df.muGamIso,df.muPUPt,df.muCharge,df.HPSTau_n,df.HPSTau_Px,df.HPSTau_Py,df.HPSTau_Pz,df.HPSTau_Energy,df.disc_decayModeFinding,df.disc_byLooseIsolationMVA3oldDMwLT,df.nGenPar,df.genParId,df.genMomParId,df.genParSt,df.genPx,df.genPy,df.genPz,df.genEnergy,df.THINnJet,df.THINjetPx,df.THINjetPy,df.THINjetPz,df.THINjetEnergy,df.THINjetPassIDLoose,df.THINjetDeepCSV_b,df.THINjetHadronFlavor,df.THINjetNHadEF,df.THINjetCHadEF,df.THINjetCEmEF,df.THINjetPhoEF,df.THINjetEleEF,df.THINjetMuoEF,df.THINjetCorrUncUp,df.THINjetNPV):
+        for run,lumi,event,isData,mcWeight_,pu_nTrueInt_,pu_nPUVert_,trigName_,trigResult_,filterName,filterResult,met_,metphi_,metUnc_,nele_,elepx_,elepy_,elepz_,elee_,eleLooseid_,eleTightid_,eleCharge_,npho_,phopx_,phopy_,phopz_,phoe_,pholooseid_,photightID_,nmu_,mupx_,mupy_,mupz_,mue_,mulooseid_,mutightid_,muChHadIso_,muNeHadIso_,muGamIso_,muPUPt_,muCharge_,HPSTau_n_,taupx_,taupy_,taupz_,taue_,tau_dMF_,tau_isLoose_,nGenPar_,genParId_,genMomParId_,genParSt_,genpx_,genpy_,genpz_,genp_,nak4jet_,ak4px_,ak4py_,ak4pz_,ak4e_,ak4LooseID_,ak4deepcsv_,ak4flavor_,ak4NHEF_,ak4CHEF_,ak4CEmEF_,ak4PhEF_,ak4EleEF_,ak4MuEF_, ak4JEC_, ak4NPV_ in zip(df.runId,df.lumiSection,df.eventId,df.isData,df.mcWeight,df.pu_nTrueInt,df.pu_nPUVert,df.hlt_trigName,df.hlt_trigResult,df.hlt_filterName,df.hlt_filterResult,df.pfMetCorrPt,df.pfMetCorrPhi,df.pfMetCorrUnc,df.nEle,df.elePx,df.elePy,df.elePz,df.eleEnergy,df.eleIsPassLoose,df.eleIsPassTight,df.eleCharge,df.nPho,df.phoPx,df.phoPy,df.phoPz,df.phoEnergy,df.phoIsPassLoose,df.phoIsPassTight,df.nMu,df.muPx,df.muPy,df.muPz,df.muEnergy,df.isLooseMuon,df.isTightMuon,df.muChHadIso,df.muNeHadIso,df.muGamIso,df.muPUPt,df.muCharge,df.HPSTau_n,df.HPSTau_Px,df.HPSTau_Py,df.HPSTau_Pz,df.HPSTau_Energy,df.disc_decayModeFinding,df.disc_byLooseIsolationMVA3oldDMwLT,df.nGenPar,df.genParId,df.genMomParId,df.genParSt,df.genPx,df.genPy,df.genPz,df.genEnergy,df.THINnJet,df.THINjetPx,df.THINjetPy,df.THINjetPz,df.THINjetEnergy,df.THINjetPassIDLoose,df.THINjetDeepCSV_b,df.THINjetHadronFlavor,df.THINjetNHadEF,df.THINjetCHadEF,df.THINjetCEmEF,df.THINjetPhoEF,df.THINjetEleEF,df.THINjetMuoEF,df.THINjetCorrUncUp,df.THINjetNPV):
             # -------------------------------------------------
             # MC Weights
             # -------------------------------------------------
@@ -658,9 +656,6 @@ def runbbdm(infile_):
             ZmumuMass[0] = -1.0
             ZmumuRecoil[0] = -1.0
             ZmumuPhi[0] = -10.
-
-            TOPRecoil[0] = -1.0
-            TOPPhi[0] = -10.
 
             GammaRecoil[0] = -1.0
             GammaPhi[0]  = -10.
