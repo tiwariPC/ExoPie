@@ -73,8 +73,6 @@ def getPT_skim(P4):
     return P4.Pt()
 
 def runbbdm(infile_):
-    DCSVMWP=0.6324
-    NEntries = skimmedTree.GetEntries()
 #    NEntries = 1000
     h_total = TH1F('h_total','h_total',2,0,2)
     h_total_mcweight = TH1F('h_total_mcweight','h_total_mcweight',2,0,2)
@@ -906,5 +904,13 @@ def MT(Pt, met, dphi):
 def InvMass(px1,py1,pz1,pe1,px2,py2,pz2,pe2):
         return sqrt((pe1+pe2)**2 - (px1+px2)**2 + (py1+py2)**2 + (pz1+pz2)**2)
 
-if __name__ == "__main__":
-    AnalyzeDataSet()
+files = ['NCUGlobalTuples.root']
+if __name__ == '__main__':
+    try:
+        pool = mp.Pool(1)
+        pool.map(runbbdm, files)
+        pool.close()
+    except Exception as e:
+        print traceback.format_exc()
+        print e
+        pass
