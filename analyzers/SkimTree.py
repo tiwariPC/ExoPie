@@ -349,7 +349,7 @@ def runbbdm(infile_):
 
             pho_pt15_eta2p5_looseID = []
             if len(pho_pt15) > 0:
-                pho_pt15_eta2p5_looseID = logical_AND_List3(pho_pt15, pho_IDLoose, pho_eta2p5)
+                pho_pt15_eta2p5_looseID = logical_AND_List3(pho_pt15, pho_eta2p5, pho_IDLoose)
 
             pass_pho_index = WhereIsTrue(pho_pt15_eta2p5_looseID, 1)
 
@@ -370,7 +370,7 @@ def runbbdm(infile_):
 
             ele_pt10_eta2p5_looseID = []
             if len(ele_pt10) > 0:
-                ele_pt10_eta2p5_looseID = logical_AND_List3(ele_pt10,ele_IDLoose, ele_eta2p5)
+                ele_pt10_eta2p5_looseID = logical_AND_List3(ele_pt10, ele_eta2p5, ele_IDLoose)
 
             pass_ele_index = WhereIsTrue(ele_pt10_eta2p5_looseID, 1)
             if debug_: "pass_ele_index",pass_ele_index
@@ -462,7 +462,7 @@ def runbbdm(infile_):
 
             tau_pt18_eta2p3 = []
             if (len(tau_pt18) > 0 and len(tau_eta2p3) > 0):
-                tau_pt18_eta2p3 = logical_AND_List2(tau_eta2p3, tau_pt18 )
+                tau_pt18_eta2p3 = logical_AND_List2(tau_pt18, tau_eta2p3)
             if debug_:print "tau_pt18_eta2p3 = ", tau_pt18_eta2p3
 
             ''' take AND of all the tau cuts (just take the lists) '''
@@ -726,7 +726,7 @@ def runbbdm(infile_):
     # ------------------
             ## for Single photon
             if len(pass_pho_index) >= 1:
-               pho1 =  phopt.index(max(phopt))
+               pho1 =   pass_pho_index[0]
                GammaRecoilPx = -( met_*math.cos(metphi_) + phopx_[pho1])
                GammaRecoilPy = -( met_*math.sin(metphi_) + phopx_[pho1])
                GammaRecoilPt = math.sqrt(GammaRecoilPx**2  +  GammaRecoilPy**2)
