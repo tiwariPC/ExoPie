@@ -343,13 +343,13 @@ def runbbdm(infile_):
             phopt = [getPt(phopx_[ip], phopy_[ip]) for ip in range(npho_)]
             phoeta = [getEta(phopx_[ip], phopy_[ip], phopz_[ip]) for ip in range(npho_)]
 
-            pho_pt15 = [(phopt[ip] > 15) for ip in range(npho_)]
+            pho_pt15 = [(phopt[ip] > 15.0) for ip in range(npho_)]
             pho_eta2p5 = [(abs(phoeta[ip]) < 2.5) for ip in range(npho_)]
             pho_IDLoose = [(pholooseid_[ip]) for ip in range(npho_)]
 
             pho_pt15_eta2p5_looseID = []
             if len(pho_pt15) > 0:
-                pho_pt15_eta2p5_looseID = logical_AND_List3(pho_pt15,pho_IDLoose, pho_eta2p5)
+                pho_pt15_eta2p5_looseID = logical_AND_List3(pho_pt15, pho_IDLoose, pho_eta2p5)
 
             pass_pho_index = WhereIsTrue(pho_pt15_eta2p5_looseID, 1)
 
@@ -364,8 +364,8 @@ def runbbdm(infile_):
             eleeta = [getEta(elepx_[ie], elepy_[ie], elepz_[ie]) for ie in range(nele_)]
             elephi = [getPhi(elepx_[ie], elepy_[ie]) for ie in range(nele_)]
 
-            ele_pt10 = [(elept[ie] > 10) for ie in range(nele_)]
-            ele_eta2p5 = [(abs(eleeta[ie]) < 2.5) for ie in range(nele_)]
+            ele_pt10 = [(elept[ie] > 10.0) for ie in range(nele_)]
+            ele_eta2p5 = [((abs(eleeta[ie]) > 1.566 and abs(eleeta[ie]) < 1.4442) and (abs(eleeta[ie]) < 2.5)) for ie in range(nele_)]
             ele_IDLoose = [(elelooseid_[ie]) for ie in range(nele_)]
 
             ele_pt10_eta2p5_looseID = []
@@ -383,12 +383,12 @@ def runbbdm(infile_):
             *      *   *****
             '''
             mupt = [getPt(mupx_[imu], mupy_[imu]) for imu in range(nmu_)]
-            mueta = [getEta(mupx_[imu], mupy_[imu], mupz_[imu])
-                     for imu in range(nmu_)]
+            mueta = [getEta(mupx_[imu], mupy_[imu], mupz_[imu]) for imu in range(nmu_)]
             muphi = [getPhi(mupx_[imu], mupy_[imu]) for imu in range(nmu_)]
             muIso_ = [((muChHadIso_[imu]+ max(0., muNeHadIso_[imu] + muGamIso_[imu] - 0.5*muPUPt_[imu]))/mupt[imu]) for imu in range(nmu_)]
 
             mu_pt10 = [(mupt[imu] > 10.0) for imu in range(nmu_)]
+            mu_eta2p4 = [(abs(mueta[imu]) < 2.4) for imu in range(nmu_)]
             mu_IDLoose = [mulooseid_[imu] for imu in range(nmu_)]
             mu_IsoLoose = [(muIso_[imu] < 0.25) for imu in range(nmu_)]
 
@@ -410,7 +410,7 @@ def runbbdm(infile_):
             ak4phi = [getPhi(ak4px_[ij], ak4py_[ij]) for ij in range(nak4jet_)]
             ak4_IDTightVeto = [ak4TightID_[ij] for ij in range(nak4jet_)]
 
-            ak4_pt30 = [(ak4pt[ij] > 30.) for ij in range(nak4jet_)]
+            ak4_pt30 = [(ak4pt[ij] > 30.0) for ij in range(nak4jet_)]
             ak4_eta4p5 = [(abs(ak4eta[ij]) < 4.5) for ij in range(nak4jet_)]
 
             ak4_pt30_eta4p5_IDT = []
