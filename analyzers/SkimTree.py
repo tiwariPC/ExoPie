@@ -27,33 +27,21 @@ outfilename= 'SkimmedTree.root'
 PUPPI = True
 CA15  = False
 
-usage = "analyzer for t+DM (debugging) "
+usage = "analyzer for bb+DM (debugging) "
 parser = argparse.ArgumentParser(description=usage)
 parser.add_argument("-i", "--inputfile",  dest="inputfile")
-parser.add_argument("-o", "--outputfile",
-                    dest="outputfile", default="out.root")
+parser.add_argument("-o", "--outputfile", dest="outputfile", default="out.root")
 parser.add_argument("-D", "--outputdir", dest="outputdir")
 parser.add_argument("-F", "--farmout", action="store_true",  dest="farmout")
 args = parser.parse_args()
 
-infile = args.inputfile
-print 'outfile= ', args.outputfile
+if args.farmout==None:
+    isfarmout = False
+else:
+    isfarmout = args.farmout
 
-# if isfarmout:
-#     infile = open(inputfilename)
-#     failcount=0
-#     for ifile in infile:
-#         try:
-#             f_tmp = TFile.Open(ifile.rstrip(),'READ')
-#             if f_tmp.IsZombie():            # or fileIsCorr(ifile.rstrip()):
-#                 failcount += 1
-#                 continue
-#             skimmedTree.Add(ifile.rstrip())
-#         except:
-#             failcount += 1
-#     if failcount>0: print "Could not read %d files. Skipping them." %failcount
-# if not isfarmout:
-#     skimmedTree.Add(inputfilename)
+infilename = args.inputfile
+print 'outfile= ', args.outputfile
 
 def arctan(x,y):
     corr=0
@@ -800,7 +788,15 @@ def InvMass(px1,py1,pz1,pe1,px2,py2,pz2,pe2):
     inv_mass = (p1+p2).M()
     return inv_mass
 
-files = ['NCUGlobalTuples.root']
+files = []
+if not isfarmout:
+    files.append(infile)
+elif isfarmout:
+    infile = open(inputfilename)
+    failcount=0
+    for ifile in infile:
+        files.append(ifile.rstrip())
+
 if __name__ == '__main__':
     try:
         pool = mp.Pool(1)
