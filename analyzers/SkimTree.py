@@ -790,9 +790,9 @@ def InvMass(px1,py1,pz1,pe1,px2,py2,pz2,pe2):
 
 files = []
 if not isfarmout:
-    files.append(infile)
+    files.append(infilename)
 elif isfarmout:
-    infile = open(inputfilename)
+    infile = open(infilename)
     failcount=0
     for ifile in infile:
         files.append(ifile.rstrip())
