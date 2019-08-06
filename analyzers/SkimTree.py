@@ -352,7 +352,7 @@ def runbbdm(infile_):
                 pho_pt15_eta2p5_looseID = logical_AND_List3(pho_pt15, pho_eta2p5, pho_IDLoose)
 
             pass_pho_index = WhereIsTrue(pho_pt15_eta2p5_looseID, 1)
-
+            if debug_: print "pass_ele_index",pass_ele_index
             '''
             ****   *      ****
             *      *      *
@@ -373,7 +373,7 @@ def runbbdm(infile_):
                 ele_pt10_eta2p5_looseID = logical_AND_List3(ele_pt10, ele_eta2p5, ele_IDLoose)
 
             pass_ele_index = WhereIsTrue(ele_pt10_eta2p5_looseID, 1)
-            if debug_: "pass_ele_index",pass_ele_index
+            if debug_: print "pass_ele_index",pass_ele_index
 
             '''
             **     *  *     *
@@ -397,7 +397,8 @@ def runbbdm(infile_):
                 mu_pt10_eta2p4_looseID_looseISO = logical_AND_List2(mu_IDLoose, mu_IsoLoose)
 
             pass_mu_index = WhereIsTrue(mu_pt10_eta2p4_looseID_looseISO, 1)
-            if debug_: "pass_mu_index",pass_mu_index
+            if debug_: print "pass_mu_index",pass_mu_index
+
             '''
             *******   *****   *******
                *      *          *
@@ -443,6 +444,7 @@ def runbbdm(infile_):
                 jetCleaned = logical_AND_List2(jetCleanAgainstEle, jetCleanAgainstMu)
                 pass_jet_index_cleaned = WhereIsTrue(jetCleaned, 3)
                 if debug_:print "pass_jet_index_cleaned = ", pass_jet_index_cleaned,"nJets= ",len(ak4px_)
+
             '''
             ********    *        *       *
                *      *    *     *       *
@@ -498,14 +500,7 @@ def runbbdm(infile_):
                 pass_tau_index_cleaned = WhereIsTrue(tauCleaned,3)
                 if debug_:print "pass_tau_index_cleaned",pass_tau_index_cleaned
 
-            '''
-            ********    *******     *       *
-            *           *           * *     *
-            *   ***     ****        *   *   *
-            *      *    *           *     * *
-            ********    *******     *       *
-            '''
-    # ----------------------------------------------------------------------------------------------------------------------------------------------------------------
+            # -------------------------------------------------------------
             st_runId[0]             = long(run)
             st_lumiSection[0]       = lumi
             st_eventId[0]           = event
@@ -578,7 +573,8 @@ def runbbdm(infile_):
                 st_THINjetEleEF.push_back(ak4EleEF_[ithinjet])
                 st_THINjetMuoEF.push_back(ak4MuEF_[ithinjet])
                 st_THINjetCorrUnc.push_back(ak4JEC_[ithinjet])
-            if debug_:print 'reached jets'
+            if debug_:print 'njets: ',len(pass_jet_index_cleaned)
+
             st_nEle[0] = len(pass_ele_index)
             for iele in pass_ele_index:
                 st_elePx.push_back(elepx_[iele])
@@ -586,7 +582,8 @@ def runbbdm(infile_):
                 st_elePz.push_back(elepz_[iele])
                 st_eleEnergy.push_back(elee_[iele])
                 st_eleIsPassTight.push_back(bool(eleTightid_[iele]))
-            if debug_:print 'reached electron'
+            if debug_:print 'nEle: ',len(pass_ele_index)
+
             st_nMu[0] = len(pass_mu_index)
             for imu in pass_mu_index:
                 st_muPx.push_back(mupx_[imu])
@@ -595,12 +592,15 @@ def runbbdm(infile_):
                 st_muEnergy.push_back(mue_[imu])
                 st_isTightMuon.push_back(bool(mutightid_[imu]))
                 st_muIso.push_back(muIso_[imu])
-            if debug_:print 'reached muon'
+            if debug_:print 'nMu: ',len(pass_mu_index)
+
             st_HPSTau_n[0] = len(pass_tau_index_cleaned)
             # st_nTauTightElectron[0] = len(myTausTightElectron)
             # st_nTauTightMuon[0] = len(myTausTightMuon)
             # st_nTauTightEleMu[0] = len(myTausTightEleMu)
             # st_nTauLooseEleMu[0] = len(myTausLooseEleMu)
+            if debug_:print 'nTau: ',len(pass_tau_index_cleaned)
+
             st_nPho[0]=len(pass_pho_index)
             for ipho in pass_pho_index:
                 st_phoPx.push_back(phopx_[ipho])
@@ -608,10 +608,12 @@ def runbbdm(infile_):
                 st_phoPz.push_back(phopz_[ipho])
                 st_phoEnergy.push_back(phoe_[ipho])
                 st_phoIsPassTight.push_back(bool(photightID_[ipho]))
-            if debug_:print 'reached photon'
+            if debug_:print 'nPho: ',len(pass_pho_index)
+
             st_pu_nTrueInt[0] = pu_nTrueInt_
             st_pu_nPUVert[0] = pu_nPUVert_
             st_THINjetNPV[0] = ak4NPV_
+
             st_nGenPar[0] =  nGenPar_
             for igp in range(nGenPar_):
                 st_genParId.push_back(int(genParId_[igp]))
@@ -621,13 +623,13 @@ def runbbdm(infile_):
                 st_genParPy.push_back(genpy_[igp])
                 st_genParPz.push_back(genpz_[igp])
                 st_genParEnergy.push_back(gene_[igp])
-            if debug_: print 'reached genParticles'
+            if debug_: print 'nGen: ',nGenPar_
+
             st_pfMetUncJetResUp.push_back(metUnc_[0])
             st_pfMetUncJetResDown.push_back(metUnc_[1])
-
             st_pfMetUncJetEnUp.push_back(metUnc_[2])
             st_pfMetUncJetEnDown.push_back(metUnc_[3])
-            if debug_: print 'reached metUnc'
+
             ## Fill variables for the CRs.
             WenuRecoil[0] = -1.0
             Wenumass[0] = -1.0
@@ -647,9 +649,8 @@ def runbbdm(infile_):
 
             GammaRecoil[0] = -1.0
             GammaPhi[0]  = -10.
+            if debug_: print 'Reached Fill variables'
 
-
-            if debug_: print 'reached Fill variables'
             # ------------------
             # Z CR
             # ------------------
@@ -666,7 +667,6 @@ def runbbdm(infile_):
                         ZeeRecoil[0] = ZeeRecoilPt
                         ZeeMass[0] = ee_mass
                         ZeePhi[0] = arctan(zeeRecoilPx,zeeRecoilPy)
-
             ## for dimu
             if len(pass_mu_index) ==2:
                 imu1=pass_mu_index[0]
@@ -680,17 +680,17 @@ def runbbdm(infile_):
                         ZmumuRecoil[0] = ZmumuRecoilPt
                         ZmumuMass[0] = mumu_mass
                         ZmumuPhi[0] = arctan(zmumuRecoilPx,zmumuRecoilPy)
-
             if len(pass_ele_index) == 2:
                 ZRecoilstatus =(ZeeRecoil[0] > 200)
             elif len(pass_mu_index) == 2:
                 ZRecoilstatus =(ZmumuRecoil[0] > 200)
             else:
                 ZRecoilstatus=False
-            if debug_: print 'reached Z CR'
-    # ------------------
-    # W CR
-    # ------------------
+            if debug_: print 'Reached Z CR'
+
+            # ------------------
+            # W CR
+            # ------------------
             ## for Single electron
             if len(pass_ele_index) == 1:
                ele1 = pass_ele_index[0]
@@ -702,7 +702,6 @@ def runbbdm(infile_):
                    WenuRecoil[0] = WenuRecoilPt
                    Wenumass[0] = e_mass
                    WenuPhi[0] = arctan(WenuRecoilPx,WenuRecoilPy)
-
             ## for Single muon
             if len(pass_mu_index) == 1:
                mu1 = pass_mu_index[0]
@@ -720,25 +719,24 @@ def runbbdm(infile_):
                 WRecoilstatus =(WmunuRecoil[0] > 200)
             else:
                 WRecoilstatus=False
-            if debug_: print 'reached W CR'
-    # ------------------
-    # Gamma CR
-    # ------------------
+            if debug_: print 'Reached W CR'
+
+            # ------------------
+            # Gamma CR
+            # ------------------
             ## for Single photon
             if len(pass_pho_index) >= 1:
-               pho1 =   pass_pho_index[0]
+               pho1 = pass_pho_index[0]
                GammaRecoilPx = -( met_*math.cos(metphi_) + phopx_[pho1])
-               GammaRecoilPy = -( met_*math.sin(metphi_) + phopx_[pho1])
+               GammaRecoilPy = -( met_*math.sin(metphi_) + phopy_[pho1])
                GammaRecoilPt = math.sqrt(GammaRecoilPx**2  +  GammaRecoilPy**2)
                if GammaRecoilPt > 200.:
                    GammaRecoil[0] = GammaRecoilPt
                    GammaPhi[0] = arctan(GammaRecoilPx,GammaRecoilPy)
-
             GammaRecoilStatus = (GammaRecoil[0] > 200)
-            if debug_: print 'reached Gamma CR'
-            if pfmetstatus==False and ZRecoilstatus==False and WRecoilstatus==False and GammaRecoilStatus==False:
-                continue
+            if debug_: print 'Reached Gamma CR'
 
+            if pfmetstatus==False and ZRecoilstatus==False and WRecoilstatus==False and GammaRecoilStatus==False: continue
             outTree.Fill()
         outfile.cd()
         h_total_mcweight.Write()
@@ -793,98 +791,14 @@ def CheckFilter(filterName, filterResult,filtercompare):
         ifilter_ = ifilter_ + 1
     return filter1
 
-
-def GenWeightProducer(sample,nGenPar, genParId, genMomParId, genParSt,genParP4):
-    pt__=0;
-    #print " inside gen weight "
-    k2=1.0
-    #################
-    # WJets
-    #################
-    if sample=="WJETS":
-        goodLepID = []
-        for ig in range(nGenPar):
-            PID    = genParId[ig]
-            momPID = genMomParId[ig]
-            status = genParSt[ig]
-            if ( (abs(PID) != 11) & (abs(PID) != 12) &  (abs(PID) != 13) & (abs(PID) != 14) &  (abs(PID) != 15) &  (abs(PID) != 16) ): continue
-            #print "lepton found"
-            if ( ( (status != 1) & (abs(PID) != 15)) | ( (status != 2) & (abs(PID) == 15)) ): continue
-            #print "tau found"
-            if ( (abs(momPID) != 24) & (momPID != PID) ): continue
-            #print "W found"
-            #print "aftrer WJ if statement"
-            goodLepID.append(ig)
-        #print "length = ",len(goodLepID)
-        if len(goodLepID) == 2 :
-            l4_thisLep = genParP4[goodLepID[0]]
-            l4_thatLep = genParP4[goodLepID[1]]
-            l4_z = l4_thisLep + l4_thatLep
-
-            pt = l4_z.Pt()
-            pt__ = pt
-            print " pt inside "
-            k2 = -0.830041 + 7.93714 *TMath.Power( pt - (-877.978) ,(-0.213831) ) ;
-
-    #################
-    #ZJets
-    #################
-    if sample == "ZJETS":
-        print " inside zjets "
-        goodLepID = []
-        for ig in range(nGenPar):
-         #   print " inside loop "
-            PID    = genParId[ig]
-            momPID = genMomParId[ig]
-            status = genParSt[ig]
-          #  print " after vars "
-
-            if ( (abs(PID) != 12) &  (abs(PID) != 14) &  (abs(PID) != 16) ) : continue
-            if ( status != 1 ) : continue
-            if ( (momPID != 23) & (momPID != PID) ) : continue
-            goodLepID.append(ig)
-
-        if len(goodLepID) == 2 :
-            l4_thisLep = genParP4[goodLepID[0]]
-            l4_thatLep = genParP4[goodLepID[1]]
-            l4_z = l4_thisLep + l4_thatLep
-            pt = l4_z.Pt()
-            print " pt inside "
-            k2 = -0.180805 + 6.04146 *TMath.Power( pt - (-759.098) ,(-0.242556) ) ;
-
-    #################
-    #TTBar
-    #################
-    if (sample=="TT"):
-        print " inside ttbar "
-        goodLepID = []
-        for ig in range(nGenPar):
-            print "inside TT loop "
-            PID    = genParId[ig]
-            momPID = genMomParId[ig]
-            status = genParSt[ig]
-            if ( abs(PID) == 6) :
-                goodLepID.append(ig)
-        if(len(goodLepID)==2):
-            l4_thisLep = genParP4[goodLepID[0]]
-            l4_thatLep = genParP4[goodLepID[1]]
-            pt1 = TMath.Min(400.0, l4_thisLep.Pt())
-            pt2 = TMath.Min(400.0, l4_thatLep.Pt())
-
-            w1 = TMath.Exp(0.156 - 0.00137*pt1);
-            w2 = TMath.Exp(0.156 - 0.00137*pt2);
-            k2 =  1.001*TMath.Sqrt(w1*w2);
-
-    if(sample=="all"):
-        k2 = 1.0
-
-    return k2
-
 def MT(Pt, met, dphi):
     return ROOT.TMath.Sqrt( 2 * Pt * met * (1.0 - ROOT.TMath.Cos(dphi)) )
 
 def InvMass(px1,py1,pz1,pe1,px2,py2,pz2,pe2):
-        return math.sqrt((pe1+pe2)**2 - (px1+px2)**2 + (py1+py2)**2 + (pz1+pz2)**2)
+    p1 = TLorentzVector(px1, py1, pz1, pe1)
+    p2 = TLorentzVector(px2, py2, pz2, pe2)
+    inv_mass = (p1+p2).M()
+    return inv_mass
 
 files = ['NCUGlobalTuples.root']
 if __name__ == '__main__':
