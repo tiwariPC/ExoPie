@@ -23,14 +23,13 @@ from MathUtils import *
 print "starting clock"
 start = time.clock()
 
-outfilename= 'SkimmedTree.root'
 PUPPI = True
 CA15  = False
 
 usage = "analyzer for bb+DM (debugging) "
 parser = argparse.ArgumentParser(description=usage)
 parser.add_argument("-i", "--inputfile",  dest="inputfile")
-parser.add_argument("-o", "--outputfile", dest="outputfile", default="out.root")
+parser.add_argument("-o", "--outputfile", dest="outputfile", default="SkimmedTree.root")
 parser.add_argument("-D", "--outputdir", dest="outputdir")
 parser.add_argument("-F", "--farmout", action="store_true",  dest="farmout")
 args = parser.parse_args()
